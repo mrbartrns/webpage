@@ -7,10 +7,16 @@
 </head>
 <body>
     <form method="POST" action="/login">
-        <label for="id">ID</label>
-        <input type="text" name="id" id="id"/>
-        <label for="pw">Password</label>
-        <input type="text" name="pw" id="pw">
+        <table>
+            <tr>
+                <td><label for="id">ID: </label></td>
+                <td><input type="text" name="id" id="id"/></td>
+            </tr>
+            <tr>
+                <td><label for="pw">Password: </label></td>
+                <td><input type="password" name="pw" id="pw"></td>
+            </tr>
+        </table>
         <input type="submit">
     </form>
 </body>

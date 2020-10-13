@@ -7,14 +7,24 @@
 </head>
 <body>
     <form method="POST" action="/register">
-        <label for="id">ID</label>
-        <input type="text" name="id" id="id" required>
-        <label for="pw">Password</label>
-        <input type="password" name="pw" id="pw" required>
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" required>
-        <label for="nickname">Nickname</label>
-        <input type="text" name="nickname" id="nickname" required>
+        <table>
+            <tr>
+                <td><label for="id">ID</label></td>
+                <td><input type="text" name="id" id="id" required></td>
+            </tr>
+            <tr>
+                <td><label for="pw">Password</label></td>
+                <td><input type="password" name="pw" id="pw" required></td>
+            </tr>
+            <tr>
+                <td><label for="email">Email</label></td>
+                <td><input type="email" name="email" id="email" required></td>
+            </tr>
+            <tr>
+                <td><label for="nickname">Nickname</label></td>
+                <td><input type="text" name="nickname" id="nickname" required></td>
+            </tr>
+        </table>
         <input type="submit">
     </form>
 </body>

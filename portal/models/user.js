@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const { StringDecoder } = require('string_decoder');
+const jwt = require('jsonwebtoken');
 
 // User Schema 만들기
 const Schema = mongoose.Schema;
@@ -28,6 +28,7 @@ const userSchema = new Schema({
 
     email: {
         type: String,
+        trim: true,
         required: true,
         unique: 1
     },
@@ -57,6 +58,7 @@ const userSchema = new Schema({
 
 });
 
+// crypt password before save
 userSchema.pre('save', function(next) {
     let user = this;
     if (user.isModified('pw')) {
@@ -76,6 +78,14 @@ userSchema.methods.comparePassword = function(plainPassword) {
         isMatch = this.pw === cryptedPw;
         resolve(isMatch);
     });
+}
+
+userSchema.methods.generateToken = function() {
+    const token = jwt.sign(this._id.toHexString(), "secretToken");
+    this.token = token;
+    return this.save()
+        .then(user => user)
+        .catch(err => err);
 }
 
 const User = mongoose.model('users', userSchema);

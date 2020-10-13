@@ -40,17 +40,30 @@ module.exports = (app, User) => {
                 });
             }
             // models/user.js에 작성된 method는 User가 아닌 Document에서 사용되는 객체임
-            user.comparePassword(req.body.pw)
+            user
+                .comparePassword(req.body.pw)
                 .then((isMatch) => {
-                    if(isMatch) {
-                        return res.json({loginSuccess: true});
-                    } else {
+                    if(!isMatch) {
                         return res.json({
                             loginSuccess: false,
                             message: '비밀번호가 일치하지 않습니다.'
-                        })
+                        });
                     }
-                });
+                    user
+                        .generateToken()
+                        .then(user => {
+                            res
+                                .cookie("x_auth", user.token)
+                                .status(200)
+                                .json({loginSuccess: true});
+                        })
+                        .catch(err => {
+                            res.status(400).send(err);
+                        })
+                })
+                .catch(err => {
+                    res.json({loginSuccess: false, err})
+                })
         })
     });
 }
