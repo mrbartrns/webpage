@@ -8,11 +8,15 @@ const {User} = require('./models/user');
 
 const app = express();
 
+// database 연결
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect('mongodb://localhost:27017/boards');
+mongoose.connect('mongodb://localhost:27017/boards', err => {
+  if (err) console.error;
+  console.log('mongodb server connected');
+});
 
 
 
@@ -27,10 +31,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index', {title: 'test'});
 });
 
-const userRouter = require('./routes/')(app, User);
+// related to login, register routes
+require('./routes/login')(app, User);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

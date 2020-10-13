@@ -69,10 +69,12 @@ userSchema.pre('save', function(next) {
 });
 
 userSchema.methods.comparePassword = function(plainPassword) {
-    // 여기서 this는 Router 상의 Document가 된다
+    // 여기서 this는 Router 상의 Document가 된다 => Promise 객체를 반환하여 비동기적으로 사용
     return new Promise((resolve, reject) => {
+        let isMatch;
         const cryptedPw = crypto.pbkdf2Sync(plainPassword, this.salt, 100000, 64, 'sha512').toString('base64');
-        resolve(cryptedPw);
+        isMatch = this.pw === cryptedPw;
+        resolve(isMatch);
     });
 }
 
