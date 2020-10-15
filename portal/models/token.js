@@ -10,7 +10,21 @@ const tokenSchema = new Schema({
     }
 });
 
-// tokenSchema.statics.something => 주어진 토큰이 주어졌는지 아닌지 확인
+tokenSchema.statics.isExpired = function(token) {
+    let myToken = this;
+    let isExpired;
+    return new Promise((resolve, reject) => {
+        myToken.findOne({token: token})
+            .then(token => {
+                if (token) {
+                    isExpired = true;
+                } else {
+                    isExpired = false;
+                }
+                resolve(isExpired);
+            })
+    });
+}
 
 const TokenBlackList = mongoose.model('tokenBlackLists', tokenSchema);
 
