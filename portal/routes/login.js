@@ -55,7 +55,10 @@ module.exports = (app, User) => {
                             res
                                 .cookie("x_auth", user.token)
                                 .status(200)
-                                .json({loginSuccess: true});
+                                .json({
+                                loginSuccess: true,
+                                token: user.token
+                                }); // 꼭 지울것
                         })
                         .catch(err => {
                             res.status(400).send(err);
