@@ -4,7 +4,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const config = require('./config');
 const {User} = require('./models/user');
+const { TokenBlackList } = require('./models/token');
 
 const app = express();
 
@@ -24,6 +26,9 @@ mongoose.connect('mongodb://localhost:27017/boards', err => {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// set the secret key variable for jwt
+app.set('jwt-secret', config.secret);
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -36,6 +41,8 @@ app.get('/', (req, res) => {
 
 // related to login, register routes
 require('./routes/login')(app, User);
+require('./routes/modify')(app);
+require('./routes/logout')(app, User, TokenBlackList);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
