@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const secretCode = require('../config').secret;
 
 // User Schema 만들기
 const Schema = mongoose.Schema;
@@ -48,6 +49,7 @@ const userSchema = new Schema({
         type: String
     },
 
+    // this is refreshToken
     token: {
         type: String
     },
@@ -81,8 +83,18 @@ userSchema.methods.comparePassword = function(plainPassword) {
 }
 
 userSchema.methods.generateToken = function() {
+    let user = this;
     // _id를 이용해서 토큰으로 만든다.
-    const token = jwt.sign(this._id.toHexString(), "secretToken");
+    const token = jwt.sign({
+        _id: user._id,
+        id: user.id,
+        role: user.role
+    }, secretCode, {
+        expiresIn: '7d',
+        issuer: 'testissuer.com',
+        subject: 'userInfo'
+    });
+    // const token = jwt.sign(this._id.toHexString(),"secret token");
 
     this.token = token;
 
@@ -97,7 +109,9 @@ userSchema.statics.findByToken = function(token) {
     let user = this;
 
     // secret token을 통해 user의 id 값을 받아오고, 해당 아이디를 통해 db에 접근, 유저 정보를 가져옴
-    return jwt.verify(token, 'secretToken', (err, decoded) => {
+    return jwt.verify(token, secretCode, (err, decoded) => {
+        if (err) console.error;
+        console.log(decoded);
         return user
             .findOne({_id: decoded, token: token})
             .then(user => user) // 유저 정보를 가져옴
