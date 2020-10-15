@@ -23,6 +23,7 @@ tokenSchema.statics.isExpired = function(token) {
                 }
                 resolve(isExpired);
             })
+            .catch(err => console.error);
     });
 }
 
