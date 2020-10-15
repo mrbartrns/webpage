@@ -81,12 +81,32 @@ userSchema.methods.comparePassword = function(plainPassword) {
 }
 
 userSchema.methods.generateToken = function() {
+    // _id를 이용해서 토큰으로 만든다.
     const token = jwt.sign(this._id.toHexString(), "secretToken");
+
     this.token = token;
+
     return this.save()
         .then(user => user)
         .catch(err => err);
 }
+
+// 토큰을 찾아서 작업을 수행 (회원정보 수정, 로그인권한 확인) 전에 필요한 중간 미들웨어
+userSchema.statics.findByToken = function(token) {
+    // user = Document
+    let user = this;
+
+    // secret token을 통해 user의 id 값을 받아오고, 해당 아이디를 통해 db에 접근, 유저 정보를 가져옴
+    return jwt.verify(token, 'secretToken', (err, decoded) => {
+        return user
+            .findOne({_id: decoded, token: token})
+            .then(user => user) // 유저 정보를 가져옴
+            .catch(err => err)
+    });
+}
+
+// methods는 Document 단위로 사용하는 함수이고
+// statics는 Collection 단위로 사용하는 함수이다.
 
 const User = mongoose.model('users', userSchema);
 
