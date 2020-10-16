@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        margin: 10% 10% auto;
+    }
+    a {
+        text-decoration: none;
+        font-weight: 400;
+    }
+    a, a:visited, a:hover, a:active {
+        color: inherit;
+    }
+</style>
+<body>
+    <table style="width: 80%;" align="center">
+        <thead>
+            <th align="center">user id</th>
+            <th align="center">user role</th>
+            <th align="center">user email</th>
+            <th align="center">user nickname</th>
+            <th align="center">수정</th>
+            <th align="center" style="color: red;">삭제</th>
+        </thead>
+        <tbody>
+            <% users.forEach(user => { %>
+                <tr>
+                    <td align="center"><%= user.id %></td>
+                    <td align="center">
+                        <% if(user.role === 7 || user.role === 8 || user.role === 9) { %>
+                            <%= '관리자' %>
+                        <% } else { %> 
+                            <%= '일반' %>
+                        <% } %>
+                    </td>
+                    <td align="center"><%= user.email %></td>
+                    <td align="center"><%= user.nickName %></td>
+                    <td align="center"><a href="<%= %>">수정</a></td>
+                    <td align="center" style="color: red;"><a href="<%= %>">삭제</a></td>
+                </tr>
+            <% }) %> 
+        </tbody>
+    </table>
+</body>
+</html>
