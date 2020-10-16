@@ -113,7 +113,7 @@ userSchema.statics.findByToken = function(token) {
         if (err) console.error;
         console.log(decoded);
         return user
-            .findOne({_id: decoded, token: token})
+            .findOne({_id: decoded._id, token: token})
             .then(user => user) // 유저 정보를 가져옴
             .catch(err => err)
     });
