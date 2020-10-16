@@ -43,6 +43,7 @@ app.get('/', (req, res) => {
 require('./routes/login')(app, User);
 require('./routes/modify')(app);
 require('./routes/logout')(app, User, TokenBlackList);
+require('./routes/admin')(app, User);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
