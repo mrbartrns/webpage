@@ -13,6 +13,7 @@
                 <li><span><a href="board/<%= name.url %>"><%= name.boardName %></a></span></li>
             <% }); %> 
         </ul>
+        <a id="post-article" href="/board/<%= board.url %>/post">글쓰기</a>
     </div>
     <!-- <div class="list"> -->
         <table width="80%">
@@ -25,14 +26,14 @@
             <tbody>
                 <% posts.forEach(post => { %>
                     <% if (!post) { %>
-                        <tr><td>게시글이 없습니다.</td></tr>
+                        <tr align="center"><td>게시글이 없습니다.</td></tr>
                     <% } else { %>
-                        <tr>
-                            <td><span><a href="/board/<%= post.boardId.boardName %>/<%= post._id %>"><%= post.title %></a></span></td>
+                        <tr align="center">
+                            <td width="40%"><span><a href="/board/<%= post.board_id.boardName %>/<%= post._id %>"><%= post.title %></a></span></td>
+                            <td><span><%= post.nickName %></span></td>
+                            <td><span><%= post.views %></span></td>
+                            <td><span><%= post.regDate %></span></td>
                         </tr>
-                        <tr><td><span><%= post.nickName %></span></td></tr>
-                        <tr><td><span><%= post.views %></span></td></tr>
-                        <tr><td><span><%= post.regDate %></span></td></tr>
                     <% } %>
                 <% }); %>
             </tbody>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= board.boardName %> 글쓰기</title>
+</head>
+<body>
+    <style>
+        textarea {
+            resize: none;
+        }
+    </style>
+    <form action="/board/<%= board.url %>/post" method="POST">
+        <input type="text" name="title" placeholder="제목">
+        <textarea rows="30" cols="100" name="contents"></textarea>
+        <input type="submit" value="제출">
+    </form>
+</body>
+</html>
