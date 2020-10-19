@@ -6,7 +6,15 @@ const boardSchema = new Schema({
     boardName: {
         type: String,
         required: true,
+        unique: 1
     },
+
+    url: {
+        type: String,
+        required: true,
+        unique: 1
+    },
+
     madeDate: {
         type: String,
     },
