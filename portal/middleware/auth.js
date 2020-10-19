@@ -19,6 +19,7 @@ let auth = (req, res, next) => {
                         req.user = {
                             _id: user._id,
                             id: user.id,
+                            nickName: user.nickName,
                             role: user.role
                         };
 
