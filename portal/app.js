@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const config = require('./config');
 const {User} = require('./models/user');
 const { TokenBlackList } = require('./models/token');
+const { Board } = require('./models/boardname');
+const user = require('./models/user');
 
 const app = express();
 
@@ -36,7 +38,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.render('index', {title: 'test'});
+  Board.find()
+    .then(boards => {
+      res.render('index', {title: 'portal', boards: boards});
+    })
+    .catch(err => {
+      res.render('error');
+    })
 });
 
 // related to login, register routes
@@ -44,6 +52,7 @@ require('./routes/login')(app, User);
 require('./routes/modify')(app);
 require('./routes/logout')(app, User, TokenBlackList);
 require('./routes/admin')(app, User);
+require('./routes/board')(app, User);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
