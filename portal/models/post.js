@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-    boardId: {
+    board_id: {
         type: Schema.Types.ObjectId,
         ref: 'boards',
         required: true
@@ -30,10 +30,9 @@ const postSchema = new Schema({
         required: true
     },
 
-    tags: {
-        type: String,
-        default: []
-    },
+    tags: [{
+        type: String
+    }],
 
     comments: [{
         type: Schema.Types.ObjectId,
@@ -67,12 +66,23 @@ const postSchema = new Schema({
     }
 });
 
-postSchema.post('save', function() {
-    Post
-        .find()
-        .sort({regDate: 1})
-        .exec()
+postSchema.pre('save', function(next) {
+    let post = this;
+    // 저장하는 것은 save에서 하므로, 수정일만 
+    if (post.isModified('title' || 'contents' || 'tags')) {
+        post.modDate = Date.now();
+        next();
+    } else {
+        next();
+    }
 });
+
+// postSchema.post('save', function() {
+//     Post
+//         .find()
+//         .sort({regDate: -1})
+//         .exec()
+// });
 
 
 const Post = mongoose.model('posts', postSchema);
