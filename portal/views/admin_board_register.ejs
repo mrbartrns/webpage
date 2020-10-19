@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 추가하기</title>
+</head>
+<body>
+    <form action="/admin/manageboards/register", method="POST">
+        <table>
+            <tr>
+                <td><label for="boardname">게시판 이름: </label></td>
+                <td><input type="text" name="boardname" id="boardname"></td>
+            </tr>
+            <tr>
+                <td><label for="url">게시판 URL: </label></td>
+                <td><input type="text" name="url" id="url"></td>
+            </tr>
+        </table>
+        <input type="submit" value="제출">
+    </form>
+</body>
+</html>

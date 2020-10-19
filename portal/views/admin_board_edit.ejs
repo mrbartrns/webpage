@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 수정</title>
+</head>
+<body>
+    <h2>게시판 수정</h2>
+    <br>
+    <span>현재 게시판 이름: <%= board.boardName %></span>
+    <form action="/admin/manageboards/edit/<%= board.url %>" method="POST">
+        <table>
+            <tr>
+                <td><label for="boardname">게시판 이름: </label></td>
+                <td><input type="text" name="boardname" id="boardname"></td>
+            </tr>
+            <tr>
+                <td><label for="url">URL</label></td>
+                <td><input type="text" name="url" id="url" placeholder="'/'를 제외하고 입력하세요."></td>
+            </tr>
+        </table>
+        <input type="submit" value="제출">
+    </form>
+</body>
+</html>

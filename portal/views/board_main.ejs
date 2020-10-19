@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= board.boardName %> - test Portal></title>
+</head>
+<body>
+    <h1><a href="/board/<%= board.url %>"><%= board.boardName %></a></h1>
+    <div class="sidebar">
+        <ul class="menu">
+            <% boards.forEach(name => { %>
+                <li><span><a href="board/<%= name.url %>"><%= name.boardName %></a></span></li>
+            <% }); %> 
+        </ul>
+    </div>
+    <!-- <div class="list"> -->
+        <table width="80%">
+            <thead>
+                <th>제목</th>
+                <th>닉네임</th>
+                <th>조회수</th>
+                <th>날짜</th>
+            </thead>
+            <tbody>
+                <% posts.forEach(post => { %>
+                    <% if (!post) { %>
+                        <tr><td>게시글이 없습니다.</td></tr>
+                    <% } else { %>
+                        <tr>
+                            <td><span><a href="/board/<%= post.boardId.boardName %>/<%= post._id %>"><%= post.title %></a></span></td>
+                        </tr>
+                        <tr><td><span><%= post.nickName %></span></td></tr>
+                        <tr><td><span><%= post.views %></span></td></tr>
+                        <tr><td><span><%= post.regDate %></span></td></tr>
+                    <% } %>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" action="/admin/manageusers/modify/user/<%= user._id %>">
+        <label for="id">ID</label>
+        <!-- req.body.id로 정보를 전송할 수 없다. -->
+        <input type="text" value="<%= user.id %>" id="id" name="id" disabled>
+        <label for="role">역할</label>
+        <select name="role" id="role">
+            <option value="0">일반</option>
+            <option value="8">관리자</option>
+        </select>
+        <button type="submit">제출하기</button>
+    </form>
+    <script>
+        window.onload = () => {
+            const btn = document.querySelector('button');
+            const form = document.querySelector('form');
+            function showAlert() {
+                if (!confirm('제출하시겠습니까?')) {
+                    return false;
+                }
+                this.submit();
+            }
+            form.addEventListener('submit', showAlert);
+        }
+    </script>
+</body>
+</html>
