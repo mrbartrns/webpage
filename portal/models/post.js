@@ -1,66 +1,79 @@
+const { ExpectationFailed } = require('http-errors');
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-// id, title, 
-const comments = new Schema({
-        id: {
-            type: String,
-            required: true,
-        },
-        nickName: {
-            type: String,
-            required: true
-        },
-        post_id: {
-            type: String,
-            required: true
-        },
-        upperComment_id: {
-            type: String,
-        },
-        regDate: {
-            type: String,
-            required: true
-        },
-        modDate: {
-            type: String,
-        },
-});
-
 const postSchema = new Schema({
-    boardName: {
-        type: String,
+    boardId: {
+        type: Schema.Types.ObjectId,
+        ref: 'boards',
         required: true
     },
+
     id: {
         type: String,
         required: true
     },
+
     nickName: {
         type: String,
         required: true
     },
+
+    title: {
+        type: String,
+        required: true
+    },
+    
     contents: {
         type: String,
         required: true
     },
-    tag: {
+
+    tags: {
         type: String,
         default: []
     },
-    comments: [comments],
+
+    comments: [{
+        type: Schema.Types.ObjectId,
+        ref:'comments'
+    }],
+
+    views: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+
+    likes: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+
     regDate: {
-        type: String,
-        required: true
+        type: Date,
+        required: true,
+        default: Date.now()
     },
+
     modDate: {
-        type: String,
+        type: Date,
     },
-    image: {
+
+    img: {
         type: String
     }
 });
+
+postSchema.post('save', function() {
+    Post
+        .find()
+        .sort({regDate: 1})
+        .exec()
+});
+
 
 const Post = mongoose.model('posts', postSchema);
 
