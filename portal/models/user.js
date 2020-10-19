@@ -56,6 +56,30 @@ const userSchema = new Schema({
 
     tokenExp: {
         type: Number
+    },
+    
+    myArticle: [{
+        type: Schema.Types.ObjectId,
+        ref: 'posts'
+    }],
+
+    myComments: [{
+        type: Schema.Types.ObjectId,
+        ref: 'comments'
+    }],
+
+    recentAccess: {
+        type: Date
+    },
+
+    banned: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    bannedExp: {
+        type: Date
     }
 
 });
