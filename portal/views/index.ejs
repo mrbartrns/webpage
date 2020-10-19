@@ -5,9 +5,28 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <button type="button"><a href="/register">등록하기</a></button>
-    <button type="button"><a href="/login">로그인하기</a></button>
+    <style>
+      a {
+        text-decoration: none;
+      }
+
+      a, a:visited, a:hover {
+        color: inherit;
+      }
+    </style>
+    <div class="header">
+      <h1><%= title %></h1>
+      <p>Welcome to <%= title %></p>
+      <a href="/register">등록하기</a>
+      <br>
+      <a href="/login">로그인하기</a>
+    </div>
+    <div class="sidebar">
+      <ul class="menu">
+        <% boards.forEach(board => { %>
+          <li><a href="/board/<%= board.url %>"><%= board.boardName %></a></li>
+       <% }) %> 
+      </ul>
+    </div>
   </body>
 </html>

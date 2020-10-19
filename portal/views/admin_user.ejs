@@ -28,6 +28,7 @@
             <th align="center" style="color: red;">삭제</th>
         </thead>
         <tbody>
+            <!-- 정렬 구현하기 -->
             <% users.forEach(user => { %>
                 <tr>
                     <td align="center"><%= user.id %></td>
@@ -40,8 +41,8 @@
                     </td>
                     <td align="center"><%= user.email %></td>
                     <td align="center"><%= user.nickName %></td>
-                    <td align="center"><a href="<%= %>">수정</a></td>
-                    <td align="center" style="color: red;"><a href="<%= %>">삭제</a></td>
+                    <td align="center"><a href="/admin/manageusers/modify/<%= user._id %>">수정</a></td>
+                    <td align="center" style="color: red;"><a href="#">삭제</a></td>
                 </tr>
             <% }) %> 
         </tbody>

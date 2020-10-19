@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 관리</title>
+</head>
+<body>
+    <style>
+        body {
+            margin: 10% 10% auto;
+        }
+        table > * {
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+            color: #BADA55;
+        }
+
+        a, a:hover, a:visited {
+            color: inherit;
+        }
+
+        .delete {
+            cursor: pointer;
+            color: red;
+        }
+    </style>
+    <div class="header">
+        <h1>게시판 관리</h1>
+        <a href="/admin/manageboards/register">추가하기</a>
+    </div>
+    <hr>
+    <div class="content">
+        <table width="80%" align="center">
+            <% if (boards.length === 0) { %>
+                <tr>
+                    <td>게시판이 없습니다.</td>
+                </tr>
+            <% } else { %>
+                <tr>
+                    <th>게시판 이름</th>
+                    <th>게시판 이름 수정</th>
+                    <th>게시판 삭제</th>
+                    <!-- boardsname과 post schema 합친 후 다시 수정하기 -->
+                <% boards.forEach(board => { %>
+                    <tr>
+                        <td><%= board.boardName %></td>
+                        <td><a href="/admin/manageboards/edit/<%= board.url %>">수정</a></td>
+                        <td><span data-url="<%= board.url %>" class="delete" >삭제</a></td>
+                    </tr>
+                <% }) %> 
+            <% } %> 
+        </table>
+    </div>
+    <script>
+        const delLinks = document.querySelectorAll('.delete');
+        delLinks.forEach(link => {
+            link.addEventListener('click', handleDelete);
+        });
+
+        function handleDelete() {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                fetch(`/admin/manageboards/delete/${this.dataset.url}`, {
+                    method: 'DELETE',
+                    redirect: 'follow'
+                })
+                .then(res => {
+                    // to refresh page
+                    window.location.href = "/admin/manageboards"
+                })
+            } else {
+                // do nothing
+            }
+        }
+
+    </script>
+</body>
+</html>
