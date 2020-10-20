@@ -6,11 +6,21 @@
     <title><%= board.boardName %> - test Portal></title>
 </head>
 <body>
+    <style>
+        a {
+            text-decoration: none;
+        }
+
+        a, a:hover, a:visited {
+            color: #BADA55;
+        }
+
+    </style>
     <h1><a href="/board/<%= board.url %>"><%= board.boardName %></a></h1>
     <div class="sidebar">
         <ul class="menu">
             <% boards.forEach(name => { %>
-                <li><span><a href="board/<%= name.url %>"><%= name.boardName %></a></span></li>
+                <li><span><a href="/board/<%= name.url %>"><%= name.boardName %></a></span></li>
             <% }); %> 
         </ul>
         <a id="post-article" href="/board/<%= board.url %>/post">글쓰기</a>
@@ -29,8 +39,8 @@
                         <tr align="center"><td>게시글이 없습니다.</td></tr>
                     <% } else { %>
                         <tr align="center">
-                            <td width="40%"><span><a href="/board/<%= post.board_id.boardName %>/<%= post._id %>"><%= post.title %></a></span></td>
-                            <td><span><%= post.nickName %></span></td>
+                            <td width="40%"><span><a href="/board/<%= post._board.url %>/<%= post._id %>"><%= post.title %></a></span></td>
+                            <td><span><%= post._user.nickName %></span></td>
                             <td><span><%= post.views %></span></td>
                             <td><span><%= post.regDate %></span></td>
                         </tr>

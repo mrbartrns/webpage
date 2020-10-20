@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= post.board_id.boardName %> - Test Portal</title>
+    <title><%= post._board.boardName %> - Test Portal</title>
 </head>
 <body>
     <div class="header">
+        <% if (isMe) { %>
+            <span><a href="#">수정</a></span>
+            <span><a href="#">삭제</a></span>
+        <% } %>
     </div>
     <div class="container">
         <div class="meta">
@@ -15,10 +19,9 @@
             <span>likes: <%= post.likes %></span>
         </div>
         <div class="content">
-            <div><%= post.content %></div>
+            <div><%= post.contents %></div>
         </div>
         <div class="comments">
-            
         </div>
     </div>
 </body>
