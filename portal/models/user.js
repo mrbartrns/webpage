@@ -36,7 +36,8 @@ const userSchema = new Schema({
 
     nickName: {
         type: String,
-        required: true
+        required: true,
+        unique: 1
     },
 
     role: {
@@ -129,7 +130,7 @@ userSchema.methods.generateToken = function() {
 
 // 토큰을 찾아서 작업을 수행 (회원정보 수정, 로그인권한 확인) 전에 필요한 중간 미들웨어
 userSchema.statics.findByToken = function(token) {
-    // user = Document
+    // user = Collection
     let user = this;
 
     // secret token을 통해 user의 id 값을 받아오고, 해당 아이디를 통해 db에 접근, 유저 정보를 가져옴
