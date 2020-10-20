@@ -1,23 +1,23 @@
-const { ExpectationFailed } = require('http-errors');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+// const { User } = require('./user');
 
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-    board_id: {
+    _board: {
         type: Schema.Types.ObjectId,
         ref: 'boards',
-        required: true
+        required: true,
+        index: true
     },
 
-    id: {
-        type: String,
-        required: true
-    },
-
-    nickName: {
-        type: String,
-        required: true
+    _user: {
+        type: Schema.Types.ObjectId,
+        ref: 'users',
+        index: true,
+        required: true,
+        default: ''
     },
 
     title: {
@@ -36,7 +36,8 @@ const postSchema = new Schema({
 
     comments: [{
         type: Schema.Types.ObjectId,
-        ref:'comments'
+        ref:'comments',
+        index: true
     }],
 
     views: {
@@ -77,13 +78,20 @@ postSchema.pre('save', function(next) {
     }
 });
 
-// postSchema.post('save', function() {
-//     Post
-//         .find()
-//         .sort({regDate: -1})
-//         .exec()
-// });
-
+postSchema.methods.authorizeUser = function(token) {
+    let post = this;
+    let userToken;
+    let isAthrorized;
+    userToken = post._user.token;
+    return new Promise((resolve, reject) => {
+        if (!userToken || userToken !== token) {
+            isAthrorized = false;
+        } else {
+            isAthrorized = true;
+        }
+        resolve(isAthrorized);
+    });
+}
 
 const Post = mongoose.model('posts', postSchema);
 
