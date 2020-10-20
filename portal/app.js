@@ -8,7 +8,6 @@ const config = require('./config');
 const {User} = require('./models/user');
 const { TokenBlackList } = require('./models/token');
 const { Board } = require('./models/boardname');
-const user = require('./models/user');
 
 const app = express();
 
