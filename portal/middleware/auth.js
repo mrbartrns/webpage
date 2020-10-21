@@ -6,12 +6,14 @@ const {TokenBlackList} = require('../models/token');
 let auth = (req, res, next) => {
     let token = req.cookies.x_auth;
 
-    TokenBlackList.isExpired(token)
+    TokenBlackList
+        .isExpired(token)
         .then(isExpired => {
             if (isExpired) {
                 return res.json({isAuth: false, message: 'token already has been expired'});
             } else {
-                User.findByToken(token)
+                User
+                    .findByToken(token)
                     .then(user => {
                         if (!user) return res.json({isAuth: false, error: true});
 
