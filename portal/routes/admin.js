@@ -68,7 +68,8 @@ module.exports = (app, User) => {
     });
 
     app.delete('/admin/manageboards/delete/:url', auth, admin, (req, res) => {
-        Board.findOneAndDelete({url: req.params.url})
+        Board
+            .findOneAndDelete({url: req.params.url})
             .then(board => {
                 // res.json({success: true});
                 console.log('success');
