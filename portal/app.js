@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 // related to login, register routes
-require('./routes/login')(app, User);
+require('./routes/login')(app);
 require('./routes/modify')(app);
 require('./routes/logout')(app, User, TokenBlackList);
 require('./routes/admin')(app, User);
