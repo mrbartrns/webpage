@@ -10,23 +10,18 @@ mongoose.connect('mongodb://localhost:27017/boards', err => {
     console.log('mongodb server connected');
 });
 
-const {User} = require('./models/user');
+const { User } = require('./models/user');
 const { Board } = require('./models/boardname');
 const { Post } = require('./models/post');
+const { Ip } = require('./models/ip');
 
-Post.findOne({title: 'test3'})
-    .then(post => console.log(post));
-
-// 하나 이상의 ObjectId를 참조할 때, path와 model 지정이 꼭 필요하다.
-Post.findOne({title: 'test3'})
-    .populate({
-        path: '_board',
-        model: 'boards'
+const myIp = '127.0.0.1'
+const date = Date.now();
+const ip = new Ip();
+ip.ip = myIp;
+ip.expiresIn = date + 1000 * 60 * 10 * 3
+ip.save()
+    .then(ip =>{
+        console.log(ip);
     })
-    .exec()
-    .then(post => console.log(post));
-
-// const date = Date.now()
-// setInterval(() => {
-//     console.log(date);
-// }, 1000)
+console.log(date);
