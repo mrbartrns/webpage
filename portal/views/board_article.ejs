@@ -6,6 +6,11 @@
     <title><%= post._board.boardName %> - Test Portal</title>
 </head>
 <body>
+    <style>
+        .like {
+            cursor: pointer;
+        }
+    </style>
     <div class="header">
         <% if (isMe) { %>
             <span><a href="#">수정</a></span>
@@ -16,7 +21,7 @@
         <div class="meta">
             <div><h1><%= post.title %></h1></div>
             <span>views: <%= post.views %></span>
-            <span>likes: <%= post.likes %></span>
+            <span>likes: </span><span class="like"><%= post.likes %></span>
         </div>
         <div class="content">
             <div><%= post.contents %></div>
@@ -24,5 +29,23 @@
         <div class="comments">
         </div>
     </div>
+
+
+<script>
+    window.onload = () => {
+        const likeLink = document.querySelector('.like');
+        likeLink.addEventListener('click', () => {
+            fetch('/board/<%= post._id %>/like', {
+                method: 'POST',
+                redirect: 'follow'
+            })
+            .then(blob => blob.json())
+            .then(json => {
+                likeLink.textContent = json;
+            });
+        });
+    }
+
+</script>
 </body>
 </html>
