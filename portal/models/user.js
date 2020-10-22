@@ -20,6 +20,7 @@ const userSchema = new Schema({
     pw: {
         type: String,
         required: true,
+        trim: true
     },
 
     salt: {
@@ -46,7 +47,8 @@ const userSchema = new Schema({
         default: 0
     },
 
-    image: {
+    // user image
+    img: {
         type: String
     },
 
@@ -61,12 +63,20 @@ const userSchema = new Schema({
     
     myArticle: [{
         type: Schema.Types.ObjectId,
-        ref: 'posts'
+        ref: 'posts',
+        index: true
     }],
 
     myComments: [{
         type: Schema.Types.ObjectId,
-        ref: 'comments'
+        ref: 'comments',
+        index: true
+    }],
+
+    myLikes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'posts',
+        index: true
     }],
 
     recentAccess: {
@@ -137,6 +147,7 @@ userSchema.statics.findByToken = function(token) {
     return jwt.verify(token, secretCode, (err, decoded) => {
         if (err) console.error;
         console.log(decoded);
+
         return user
             .findOne({_id: decoded._id, token: token})
             .then(user => user) // 유저 정보를 가져옴
