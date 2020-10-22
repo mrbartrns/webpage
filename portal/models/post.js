@@ -9,15 +9,12 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'boards',
         required: true,
-        index: true
     },
 
     _user: {
         type: Schema.Types.ObjectId,
         ref: 'users',
-        index: true,
         required: true,
-        default: ''
     },
 
     title: {
@@ -91,6 +88,20 @@ postSchema.methods.authorizeUser = function(token) {
         }
         resolve(isAthrorized);
     });
+}
+
+postSchema.methods.updateView = function() {
+    let post = this;
+    let counter = post.views;
+    console.log('previous post view:', counter);
+    counter++;
+    console.log('post post view:', counter);
+    
+    // return 무조건 해야 함
+    return Post
+        .findOneAndUpdate({_id: post._id}, {$set: {views: counter}})
+        .then(post => post)
+        .catch(err => err)
 }
 
 const Post = mongoose.model('posts', postSchema);
