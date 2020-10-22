@@ -7,14 +7,66 @@
 </head>
 <body>
     <style>
-        textarea {
-            resize: none;
+        #content {
+            /* min-width: 20em;
+            min-height: 1.4em;
+            max-width: 40em;
+            max-height: 10em; */
+            width: 40em;
+            height: 30em;
+            padding: 0.3em 0.5em 0 0.5em;
+            background-color: white;
+            font-size: larger;
+            text-align: left;
+            border: 1px solid black;
+            border-radius: 5px;
+            overflow-y: auto;
+        }
+
+        #content:focus {
+            border: 3px solid black;
+        }
+
+        #content > * {
+             margin: 0.7rem 0;
         }
     </style>
     <form action="/board/<%= board.url %>/post" method="POST">
         <input type="text" name="title" placeholder="제목">
-        <textarea rows="30" cols="100" name="contents"></textarea>
+        <!-- <textarea rows="30" cols="100" name="contents" id="content"></textarea> -->
+        <div class="test" name="contents" id="content" contenteditable="true" style="padding: 1rem; max-height: 50%;"><p><br></p></div>
         <input type="submit" value="제출">
     </form>
 </body>
+<!-- <script src="https://cdn.ckeditor.com/ckeditor5/23.0.0/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor 
+        .create(document.querySelector('#content'))
+        .then(editor=> {
+            console.log(editor); 
+        })
+        .catch(error=> {
+            console.error(error);
+        });
+</script> -->
+<script>
+    window.onload = () => {
+        const content = document.querySelector('#content');
+        content.addEventListener('focus', handleText);
+        // content.addEventListener('change', handleText);
+        content.addEventListener('input', (e) => {
+            if(!e.target.innerHTML) {
+                content.innerHTML = '<p><br></p>';
+            }
+        })
+        function handleText() {
+            // if (!content.innerHTML) {
+            //     const p = document.createElement('p')
+            //     content.appendChild(p);
+            // }
+            console.dir(this);
+        }
+    }
+    
+</script>
 </html>
