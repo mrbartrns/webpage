@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const test = require('./models/test');
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -10,18 +11,44 @@ mongoose.connect('mongodb://localhost:27017/boards', err => {
     console.log('mongodb server connected');
 });
 
-const { User } = require('./models/user');
-const { Board } = require('./models/boardname');
-const { Post } = require('./models/post');
-const { Ip } = require('./models/ip');
+const { Test, Sample } = require('./models/test');
 
-const myIp = '127.0.0.1'
-const date = Date.now();
-const ip = new Ip();
-ip.ip = myIp;
-ip.expiresIn = date + 1000 * 60 * 10 * 3
-ip.save()
-    .then(ip =>{
-        console.log(ip);
+Test.findOne({testString: 'hi'})
+    .populate({
+        path: '_sample',
+        model: 'samples'
     })
-console.log(date);
+    .then(test => console.log(test));
+
+Test.findOne({testString: 'hi'})
+    .then(test => {
+        console.log(test);
+        test.example = 'new new string';
+        test.save()
+            .then(test => console.log(test));
+    })
+/**
+ * Post
+        .findById(req.params.postid)
+        .then(post => {
+            console.log('phase 2');
+            likesCount = post.likes;
+            console.log(likesCount);
+            console.log(likeFlag);
+            if (likeFlag) {
+                likesCount++;
+                console.log(likesCount);
+            } else {
+                likesCount--;
+                console.log(likesCount);
+            }
+
+            post.likes = likesCount;
+            console.log('after like:', post);
+            // not working+
+            post.save()
+                .then(post => res.json({success: true, post}))
+        })
+        .catch(err => console.error(err));
+
+ */
