@@ -1,5 +1,6 @@
+const { PayloadTooLarge } = require('http-errors');
 const { auth } = require('../middleware/auth');
-const { views } = require('../middleware/viewCount');
+const { view } = require('../middleware/viewCount');
 const { Board } = require("../models/boardname");
 const { Post } = require('../models/post');
 const { User } = require('../models/user');
@@ -63,16 +64,10 @@ module.exports = (app) => {
                 if(!board) res.json({success: false, err});
                 post._board = board._id;
             })
-            .then(() => {
-                post
-                .save()
-                .then(post =>{
-                    if(!post) res.json({success: false, message:'error'});
-                    res.status(200).json({success: true});
-                })
-                .catch(err => {
-                    res.json({success: false, err});
-                })
+            .then(_ => post.save())
+            .then(post =>{
+                if(!post) res.json({success: false, message:'error'});
+                res.status(200).json({success: true});
             })
             .catch(err => {
                 res.json({Success: false, err});
@@ -88,10 +83,9 @@ module.exports = (app) => {
      * 
      */
 
-    app.get('/board/:boardurl/:postid', views, (req, res) => {
+    app.get('/board/:boardurl/:postid', view, (req, res) => {
         
         // x_auth is name of Cookie
-        let token = req.cookies.x_auth;
         Post
             .findOne({_id: req.params.postid})
             .populate({
@@ -104,12 +98,77 @@ module.exports = (app) => {
             })
             .then(post => {
                 let token = req.cookies.x_auth;
+                
+                // get routes에서는 로그인만 확인하고, post routes에서는 auth까지 같이 확인
+                let isLogined = token ? true : false;
                 post
                     .authorizeUser(token)
                     .then(isAuthorized => {
-                        res.render('board_article', {post: post, isMe: isAuthorized})
-                    });
+                        res.render('board_article', {post: post, isMe: isAuthorized, isLogined: isLogined})
+                    })
+            })
+            .catch(err => {
+                console.error(err);
+                res.json({success: false, err});
             });
-            // .catch(err => res.json({success: false, err}));
+    });
+
+    app.post('/board/:postid/like', auth, (req, res) => {
+        /**
+         * 로그인 되어있는 user를 찾는다.
+         * like는 post당 하나의 like만 할 수 있다.
+         * if user의 postid가 없다면, like를 증가 후 postid를 추가한다.
+         * postid가 있다면, like를 깎은 후 postid를 제거한다.
+         */
+        let likeFlag;
+        let likesCount;
+        User
+            .findOne({token: req.token})
+            .then(user => {
+                console.log('phase 1')
+                if(user.myLikes.indexOf(req.params.postid) !== -1) {
+
+                    const index = user.myLikes.indexOf(req.params.postid);
+
+                    user.myLikes.splice(index, 1);
+                    user.save()
+
+                    likeFlag = false;
+                } else {
+                    user.myLikes.push(req.params.postid);
+
+                    // can rewrite mutable data
+                    user.save()
+                    likeFlag = true;
+                }
+            })
+            .catch(err => console.error(err));
+        Post
+            .findById(req.params.postid)
+            .then(post => {
+                console.log('phase 2');
+                likesCount = post.likes;
+                console.log(likesCount);
+                console.log(likeFlag);
+                if (likeFlag) {
+                    likesCount++;
+                    console.log(likesCount);
+                } else {
+                    likesCount--;
+                    console.log(likesCount);
+                }
+
+                post.likes = likesCount;
+                console.log('after like:', post);
+                // not working+
+                post.save()
+                    .then(post => res.json(post.likes))
+            })
+            .catch(err => console.error(err));
+        
+    });
+
+    app.post('/test/:postid', (req, res) => {
+        
     });
 }
