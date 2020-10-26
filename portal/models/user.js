@@ -69,14 +69,12 @@ const userSchema = new Schema({
 
     myComments: [{
         type: Schema.Types.ObjectId,
-        ref: 'comments',
-        index: true
+        ref: 'comments'
     }],
 
     myLikes: [{
         type: Schema.Types.ObjectId,
-        ref: 'posts',
-        index: true
+        ref: 'posts'
     }],
 
     recentAccess: {

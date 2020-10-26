@@ -4,21 +4,19 @@ const Schema = mongoose.Schema;
 
 // id, title, 
 const commentSchema = new Schema({
-    post_id: {
-        type: String,
+    _post: {
+        type: Schema.Types.ObjectId,
+        ref: 'posts',
         required: true
     },
 
-    Comment_id: {
-        type: String,
+    _user: {
+        type: Schema.Types.ObjectId,
+        ref: 'users',
+        required: true
     },
 
-    id: {
-        type: String,
-        required: true,
-    },
-
-    nickName: {
+    contents: {
         type: String,
         required: true
     },
@@ -34,18 +32,28 @@ const commentSchema = new Schema({
     },
     
     regDate: {
-        type: String,
+        type: Date,
         required: true
     },
 
     modDate: {
-        type: String,
+        type: Date,
     },
 
     comments: [{
         type: Schema.Types.ObjectId,
         ref: 'comments'
     }]
+});
+
+commentSchema.pre('save', function(next) {
+    let comment = this;
+    if (comment.isModified('contents')) {
+        comment.modDate = Date.now();
+        next();
+    } else {
+        next();
+    }
 });
 
 

@@ -5,13 +5,13 @@ const { Board } = require('../models/boardname');
 module.exports = (app, User) => {
     // admin임을 확인하기 위하여 token의 서명, token의 role, token의 id와 로그인된 id을 확인한다.
     app.get('/admin', auth, admin, (req, res) => {
-        res.render('admin_main');
+        res.render('admin_main', {title: '관리자 페이지'});
     });
 
     // MANAGE USER
     app.get('/admin/manageusers', auth, admin, (req, res) => {
         User.find()
-            .then(users => res.render('admin_user', {users: users}))
+            .then(users => res.render('admin_user', {users: users, title: '회원 관리'}))
             .catch(err => res.json({success: false, err}));
     });
 
@@ -33,7 +33,7 @@ module.exports = (app, User) => {
         User
             .findOne({_id: req.params._id})
             .then(user => {
-                res.status(200).render('admin_moduser', {user: user});
+                res.status(200).render('admin_moduser', {user: user, title: '회원 관리'});
                 // res.status(200).json({success: true});
             })
             .catch(err => {
@@ -45,7 +45,7 @@ module.exports = (app, User) => {
     // MANAGE BOARDS
     app.get('/admin/manageboards', auth, admin, (req, res) => {
         Board.find()
-        .then(boards => res.render('admin_boards', {boards: boards}))
+        .then(boards => res.render('admin_boards', {boards: boards, title: '게시판 관리'}))
         .catch(err => res.json({success: false, err}));
     });
 

@@ -1,6 +1,7 @@
 const crypto = require('crypto');
+const { User } = require('../models/user');
 
-module.exports = (app, User) => {
+module.exports = (app) => {
     // register route
     app.get('/register', (req, res) => {
         res.render('register');
@@ -26,7 +27,7 @@ module.exports = (app, User) => {
 
     // login route
     app.get('/login', (req, res) => {
-        res.render('login');
+        res.render('login', {title: '로그인'});
     });
 
     // inspect valid value when login

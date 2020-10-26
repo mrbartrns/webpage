@@ -1,51 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= post._board.boardName %> - Test Portal</title>
-</head>
-<body>
-    <style>
-        .like {
-            cursor: pointer;
+<%- include ./header %>
+<style>
+    .like {
+        cursor: pointer;
+    }
+
+    .comment-post {
+            /* min-width: 20em; */
+            min-height: 1.4em;
+            /* max-width: 40em; */
+            max-height: 10em;
+            width: inherit;
+            height: 20em;
+            padding: 0.5em 0.5em 0 0.5em;
+            background-color: white;
+            font-size: normal;
+            text-align: left;
+            border: 2px solid grey;
+            border-radius: 5px;
+            overflow-y: auto;
+            margin: 1em 0;
         }
-    </style>
+
+        .comment-post:focus {
+            border: 2px solid black;
+            border-radius: 5px;
+        }
+
+        .comment-post > * {
+             /* padding: 0.35rem 0; */
+             margin: 0.4rem 0;
+        }
+        .post-comment {
+            cursor: pointer;
+            background-color: #77ba99;
+            font-weight: 600;
+            font-size: normal;
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 0.2rem;
+            float: right;
+            outline: none;
+        }
+
+        .post-comment:focus, .post-comment:hover, .post-comment:active {
+            background-color:  #659b80;
+            border: none;
+            outline: none;
+        }
+
+</style>
+
+<div class="container">
     <div class="header">
         <% if (isMe) { %>
             <span><a href="#">수정</a></span>
             <span><a href="#">삭제</a></span>
         <% } %>
     </div>
-    <div class="container">
-        <div class="meta">
-            <div><h1><%= post.title %></h1></div>
-            <span>views: <%= post.views %></span>
-            <span>likes: </span><span class="like"><%= post.likes %></span>
-        </div>
-        <div class="content">
-            <div><%= post.contents %></div>
-        </div>
-        <div class="comments">
-        </div>
+    <div class="meta">
+        <div class="title"><h1><%= post.title %></h1></div>
+        <span>views: <%= post.views %></span>
+        <span>likes: </span><span class="like"><%= post.likes %></span>
     </div>
+    <div class="content">
+        <div class="article h2"><%- post.contents %></div> <!-- '='가 아닌 '-'를 써야 한다. 코드를 날것으로 보여주는 역할-->
+    </div>
+    <div class="comments">
+        <!-- 임시 -->
+        <% if(post.comments.length === 0) { %>
+            <div class="comment-show-area">
+                <p>댓글이 없습니다.</p>
+            </div>
+        <% } else { %>
+            <% post.comments.forEach(comment => { %>
+                <div class="comment-show-area">
+                    <div class="comment-show-header">
+                        <a href="#"><%= comment._user.nickName %></a>
+                        <a href="#"><%= comment.regDate %></a>
+                        <% if (isLogined && comment._user.token === token) { %>
+                            <a href="#">수정</a>
+                            <a href="#">삭제</a>
+                        <% } %>
+                    </div>
+                    <div class="comment-show"><%- comment.contents %></div>
+                </div>
+            <% }); %>
+        <% } %>
+        <% if(isLogined) { %>
+            <div class="comment-post-area">
+                <div name="comment" class="comment-post" contenteditable="true"><p><br></p></div>
+                <button type="button" class="post-comment">글쓰기</button>
+            </div>
+        <% } %>
+    </div>
+</div>
 
 
 <script>
     window.onload = () => {
         const likeLink = document.querySelector('.like');
+        const articleArea = document.querySelector('.article');
+        const commentPosts = document.querySelectorAll('.comment-post');
+        const commentSubmitBtns = document.querySelectorAll('.post-comment');
+
+        function submitComment() {
+            // const comment = e.parentNode
+            const comment = this.parentNode.children.comment.innerHTML;
+            console.log(comment);
+            fetch('/board/<%= post._board.url %>/<%= post._id %>/comment/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    comment: comment
+                }),
+                redirect: 'follow'
+            })
+            .then(res => {
+                window.location.href = res.url;
+            })
+            .then(json => {
+                console.log(json);
+            });
+        }
+
         likeLink.addEventListener('click', () => {
             fetch('/board/<%= post._id %>/like', {
                 method: 'POST',
-                redirect: 'follow'
             })
             .then(blob => blob.json())
             .then(json => {
                 likeLink.textContent = json;
             });
         });
+
+        commentPosts.forEach(post => {
+            post.addEventListener('input', (e) => {
+                if(!e.target.innerHTML) {
+                    post.innerHTML = '<p><br></p>';
+                }
+            })
+        });
+
+        commentSubmitBtns.forEach(btn => {
+            btn.addEventListener('click', submitComment);
+        });
+
     }
 
 </script>
-</body>
-</html>
+<%- include ./footer %>

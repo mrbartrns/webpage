@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= board.boardName %> 글쓰기</title>
-</head>
-<body>
+<%- include ./header %>
     <style>
+
         #content {
             /* min-width: 20em;
             min-height: 1.4em;
@@ -14,30 +8,67 @@
             max-height: 10em; */
             width: 40em;
             height: 30em;
-            padding: 0.3em 0.5em 0 0.5em;
+            padding: 0.5em 0.5em 0 0.5em;
             background-color: white;
-            font-size: larger;
+            font-size: large;
             text-align: left;
-            border: 1px solid black;
+            border: 2px solid grey;
             border-radius: 5px;
             overflow-y: auto;
+            margin: 1em 0;
         }
 
         #content:focus {
-            border: 3px solid black;
+            border: 2px solid black;
+            border-radius: 5px;
         }
 
         #content > * {
+             /* padding: 0.35rem 0; */
              margin: 0.7rem 0;
         }
+
+
+        #title {
+            border: 2px solid grey;
+            border-radius: 5px;
+            width: 40em;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            font-size: large;
+        }
+
+        #title:focus {
+            border: 2px solid black;
+            border-radius: 5px;
+        }
+
+        .post-article {
+            cursor: pointer;
+            background-color: #77ba99;
+            font-weight: 600;
+            font-size: large;
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            outline: none;
+        }
+
+        .post-article:focus, .post-article:hover, .post-article:active {
+            background-color:  #659b80;
+            border: none;
+            outline: none;
+        }
+
     </style>
-    <form action="/board/<%= board.url %>/post" method="POST">
-        <input type="text" name="title" placeholder="제목">
-        <!-- <textarea rows="30" cols="100" name="contents" id="content"></textarea> -->
-        <div class="test" name="contents" id="content" contenteditable="true" style="padding: 1rem; max-height: 50%;"><p><br></p></div>
-        <input type="submit" value="제출">
-    </form>
-</body>
+    <div class="container">
+        <form>
+            <input type="text" name="title" id="title" placeholder="제목">
+            <!-- <textarea rows="30" cols="100" name="contents" id="content"></textarea> -->
+            <div name="contents" id="content" contenteditable="true"><p><br></p></div>
+            <!-- <input type="submit" value="제출" style="float: right;"> -->
+        </form>
+        <button type="button" class="post-article">글쓰기</button>
+    </div>
 <!-- <script src="https://cdn.ckeditor.com/ckeditor5/23.0.0/classic/ckeditor.js"></script>
 <script>
     ClassicEditor 
@@ -52,21 +83,38 @@
 <script>
     window.onload = () => {
         const content = document.querySelector('#content');
-        content.addEventListener('focus', handleText);
+        const submitBtn = document.querySelector('.post-article');
         // content.addEventListener('change', handleText);
+
+        function submitArticle() {
+            if(!confirm('글을 게시하시겠습니까?')) return;
+            fetch('/board/<%= board.url %>/post', {
+                method: 'POST',
+                body: JSON.stringify({
+                    title: document.querySelector('#title').value,
+                    contents: document.querySelector('#content').innerHTML
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow'
+                }
+            )
+            .then(res => {
+                window.location.href = res.url
+            })
+        }
+
         content.addEventListener('input', (e) => {
+            console.log(e.target);
             if(!e.target.innerHTML) {
                 content.innerHTML = '<p><br></p>';
             }
-        })
-        function handleText() {
-            // if (!content.innerHTML) {
-            //     const p = document.createElement('p')
-            //     content.appendChild(p);
-            // }
-            console.dir(this);
-        }
+        });
+
+        submitBtn.addEventListener('click', (submitArticle));
+
     }
     
 </script>
-</html>
+<%- include ./footer %>

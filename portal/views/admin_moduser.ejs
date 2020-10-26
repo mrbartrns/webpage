@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+<%- include ./header %>
     <form method="POST" action="/admin/manageusers/modify/user/<%= user._id %>">
         <label for="id">ID</label>
         <!-- req.body.id로 정보를 전송할 수 없다. -->
@@ -30,5 +23,4 @@
             form.addEventListener('submit', showAlert);
         }
     </script>
-</body>
-</html>
+<%- include ./footer %>

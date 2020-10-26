@@ -1,9 +1,9 @@
-const { PayloadTooLarge } = require('http-errors');
 const { auth } = require('../middleware/auth');
 const { view } = require('../middleware/viewCount');
 const { Board } = require("../models/boardname");
 const { Post } = require('../models/post');
 const { User } = require('../models/user');
+const { Comment } = require('../models/comment');
 
 module.exports = (app) => {
     app.get('/board/:boardurl', async (req, res) => {
@@ -24,7 +24,8 @@ module.exports = (app) => {
                 res.render('board_main', {
                     board: board,
                     boards: boards,
-                    posts: posts
+                    posts: posts,
+                    title: `${board.boardName} - Portal`
                 });
             });
     });
@@ -33,17 +34,18 @@ module.exports = (app) => {
         Board
             .findOne({url: req.params.boardurl})
             .then(board => {
-                res.render('board_post', {board: board});
+                res.render('board_post', {board: board, title: board.boardName});
             })
             .catch(err => res.json({success: false, err}));
     });
 
-    app.post('/board/:boardurl/post', auth, async (req, res) => {
+    app.post('/board/:boardurl/post', auth, (req, res) => {
+        // console.log(req.body);
         const post = new Post();
         post.title = req.body.title;
         post.contents = req.body.contents;
         
-        // user 정보를 objectId로 저장
+        // // user 정보를 objectId로 저장
         post._user = req.user._id;
         
         // legacy
@@ -67,10 +69,11 @@ module.exports = (app) => {
             .then(_ => post.save())
             .then(post =>{
                 if(!post) res.json({success: false, message:'error'});
-                res.status(200).json({success: true});
+                // res.status(200).json({success: true});
+                res.redirect(`/board/${req.params.boardurl}`)
             })
             .catch(err => {
-                res.json({Success: false, err});
+                res.json({success: false, err});
             })
     });
 
@@ -85,6 +88,9 @@ module.exports = (app) => {
 
     app.get('/board/:boardurl/:postid', view, (req, res) => {
         
+        let token = req.cookies.x_auth;
+        let isLogined = token ? true : false;
+
         // x_auth is name of Cookie
         Post
             .findOne({_id: req.params.postid})
@@ -96,16 +102,32 @@ module.exports = (app) => {
                 path: '_user',
                 model: 'users'
             })
+            .populate({
+                path: 'comments',
+                model: 'comments',
+                populate: [{
+                    path: '_user',
+                    model: 'users'
+                }]
+            })
             .then(post => {
-                let token = req.cookies.x_auth;
+                console.log(post.comments[0]);
                 
                 // get routes에서는 로그인만 확인하고, post routes에서는 auth까지 같이 확인
-                let isLogined = token ? true : false;
+                
                 post
                     .authorizeUser(token)
                     .then(isAuthorized => {
-                        res.render('board_article', {post: post, isMe: isAuthorized, isLogined: isLogined})
+
+                        // isMe is used for verify post's writer
+                        res.render('board_article', {
+                            post: post, 
+                            isMe: isAuthorized, 
+                            isLogined: isLogined, 
+                            token: token,
+                            title:`${post._board.boardName} - Portal`})
                     })
+                    
             })
             .catch(err => {
                 console.error(err);
@@ -168,7 +190,47 @@ module.exports = (app) => {
         
     });
 
-    app.post('/test/:postid', (req, res) => {
+    // post에 comment를 단다. comment에 comment를 달 때에는? // 
+    app.post('/board/:boardurl/:postid/comment/post', auth, (req, res) => {
+        const comment = new Comment();
+        comment._post = req.params.postid;
+        comment._user = req.user._id;
+        comment.contents = req.body.comment;
+        comment.regDate = Date.now();
+
+        // save comment on db
+        comment
+            .save()
+            .catch(err => {
+                console.error(err);
+                res.json({success: false, err});
+            });
         
+        // save comment id on post
+        Post
+            .findOne({_id: req.params.postid})
+            .then(post => {
+                if (!post) console.error('post not found');
+                post.comments.push(comment._id);
+                post.save()
+            })
+            .then(_ => console.log('post save done'))
+            .catch(err=> console.error(err));
+
+        User.findOne({_id: req.user._id})
+            .then(user => {
+                if (!user) console.error('user not found');
+                console.log('user found');
+                user.myComments.push(comment._id);
+                user.save();
+            })
+            .then(_ => {
+                console.log('user save done');
+                res.redirect(`/board/${req.params.boardurl}/${req.params.postid}`);
+            })
+            .catch(err => {
+                console.error(err);
+                res.json({success: false, err});
+            })
     });
 }
