@@ -50,7 +50,7 @@ module.exports = (app, User) => {
     });
 
     app.get('/admin/manageboards/register', auth, admin, (req, res) => {
-        res.render('admin_board_register');
+        res.render('admin_board_register', {title: '게시판 등록'});
     });
 
     app.post('/admin/manageboards/register', auth, admin, (req, res) => {
@@ -84,7 +84,7 @@ module.exports = (app, User) => {
         Board
             .findOne({url: req.params.url})
             .then(board => {
-                res.render('admin_board_edit', {board: board});
+                res.render('admin_board_edit', {board: board, title: '게시판 수정'});
             });
     });
 
