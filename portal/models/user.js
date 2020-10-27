@@ -32,6 +32,7 @@ const userSchema = new Schema({
         type: String,
         trim: true,
         required: true,
+        match: /\w+@\w+.\w+/,
         unique: 1
     },
 
