@@ -17,9 +17,18 @@
     <div class="header">
       <h1><%= title %></h1>
       <p>Welcome to <%= title %></p>
-      <a href="/register">등록하기</a>
       <br>
-      <a href="/login">로그인하기</a>
+      <% if (!login) { %>
+        <a href="/login">로그인하기</a>
+        <br>
+        <a href="/register">회원가입</a>
+      <% } else { %>
+        <a href="/logout">로그아웃하기</a>
+      <% } %>
+      <br>
+      <% if (user && user.role >= 7 && user.role <= 9) { %>
+        <a href="/admin">관리자 페이지</a>
+      <% }%>
     </div>
     <div class="sidebar">
       <ul class="menu">
