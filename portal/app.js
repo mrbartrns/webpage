@@ -9,6 +9,10 @@ const {User} = require('./models/user');
 const { TokenBlackList } = require('./models/token');
 const { Board } = require('./models/boardname');
 
+const { login } = require('./middleware/islogin');
+
+require('dotenv').config();
+
 const app = express();
 
 // database 연결
@@ -16,7 +20,7 @@ mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect('mongodb://localhost:27017/boards', err => {
+mongoose.connect(process.env.MONGO_URL, {dbName: process.env.MONGO_DB}, err => {
   if (err) console.error;
   console.log('mongodb server connected');
 });
@@ -36,10 +40,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
+// 로그인 되어있는지 여부를 확인한다.
+app.get('/', login, (req, res) => {
+  console.log('/라우트로 들어왔습니다.');
+  let isLogined = req.isLogined;
+  console.log(req.user);
   Board.find()
     .then(boards => {
-      res.render('index', {title: 'portal', boards: boards});
+      res.render('index', {
+        title: 'portal', 
+        boards: boards, 
+        login: isLogined,
+        user: req.user ? req.user : null
+      });
     })
     .catch(err => {
       res.render('error');
@@ -52,6 +65,7 @@ require('./routes/modify')(app);
 require('./routes/logout')(app, User, TokenBlackList);
 require('./routes/admin')(app, User);
 require('./routes/board')(app, User);
+require('./routes/token')(app);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
