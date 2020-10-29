@@ -1,10 +1,12 @@
 const crypto = require('crypto');
 const { User } = require('../models/user');
+const { login } = require('../middleware/islogin');
+
 
 module.exports = (app) => {
     // register route
     app.get('/register', (req, res) => {
-        res.render('register');
+        res.render('register', {title: '회원가입 하기'});
     });
 
     // register new user
@@ -26,7 +28,10 @@ module.exports = (app) => {
     });
 
     // login route
-    app.get('/login', (req, res) => {
+    app.get('/login', login, (req, res) => {
+        if (req.isLogined) {
+            return res.json({success: false, message: '이미 로그인 되었습니다.'});
+        }
         res.render('login', {title: '로그인'});
     });
 
@@ -37,27 +42,33 @@ module.exports = (app) => {
             .then(user => {
                 if (!user) res.json({success: false, message:'존재하지 않는 ID'})
                 user
-                    .comparePassword(req.body.pw)
-                    .then(isMatch => {
-                        if(!isMatch) {
-                            return res.json({
-                                loginSuccess: false,
-                                message: '비밀번호가 일치하지 않습니다.'
-                            });
-                        }
-                        user
-                            .generateToken()
-                            .then(user => {
-                                console.log('got this step')
-                                res
-                                    .cookie("x_auth", user.token)
-                                    .status(200)
-                                    .json({
-                                    loginSuccess: true,
-                                    token: user.token
-                                    });
-                            })
-                    })
+                .comparePassword(req.body.pw)
+                .then(isMatch => {
+                    if(!isMatch) {
+                        return res.json({
+                            loginSuccess: false,
+                            message: '비밀번호가 일치하지 않습니다.'
+                        });
+                    }
+                    return user.generateToken(true);
+                })
+                .then(user => {
+                    console.log('got this step')
+                    // 여기서 따로 maxAge를 설정해주는 이유는, token은 cookie로 저장되기 때문
+                    res
+                        .cookie(process.env.ACCESS_TOKEN_NAME, user.token, {
+                            maxAge: 1000 * 60 * 60,
+                        })
+                        .cookie(process.env.REFRESH_TOKEN_NAME, user.refreshToken, {
+                            maxAge: 1000 * 60 * 60 * 24 * 7,
+                            httpOnly: true
+                        })
+                        .status(200)
+                        .json({
+                            loginSuccess: true,
+                            token: user.token
+                        });
+                })
             })
             .catch(err => {
                 console.error(err);
