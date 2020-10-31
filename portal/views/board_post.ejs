@@ -64,7 +64,9 @@
         <form>
             <input type="text" name="title" id="title" placeholder="제목">
             <!-- <textarea rows="30" cols="100" name="contents" id="content"></textarea> -->
-            <div name="contents" id="content" contenteditable="true"><p><br></p></div>
+            <div name="contents" id="content" contenteditable="true">
+                    <p><br></p>
+            </div>
             <!-- <input type="submit" value="제출" style="float: right;"> -->
         </form>
         <button type="button" class="post-article">글쓰기</button>
@@ -84,7 +86,7 @@
     window.onload = () => {
         const content = document.querySelector('#content');
         const submitBtn = document.querySelector('.post-article');
-        // content.addEventListener('change', handleText);
+        
 
         function submitArticle() {
             if(!confirm('글을 게시하시겠습니까?')) return;

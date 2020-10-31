@@ -54,7 +54,7 @@
 <div class="container">
     <div class="header">
         <% if (isMe) { %>
-            <span><a href="#">수정</a></span>
+            <span><a href="/board/<%= post._board.url %>/<%= post._id %>/edit">수정</a></span>
             <span><a href="#">삭제</a></span>
         <% } %>
     </div>
@@ -126,12 +126,15 @@
             });
         }
 
-        likeLink.addEventListener('click', () => {
+        likeLink.addEventListener('click', (e) => {
+            console.log(e);
+            console.log('clicked');
             fetch('/board/<%= post._id %>/like', {
                 method: 'POST',
             })
             .then(blob => blob.json())
             .then(json => {
+                console.log(json);
                 likeLink.textContent = json;
             });
         });
