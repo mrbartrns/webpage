@@ -1,62 +1,63 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-// id, title, 
+// id, title,
 const commentSchema = new Schema({
-    _post: {
-        type: Schema.Types.ObjectId,
-        ref: 'posts',
-        required: true
-    },
+  _post: {
+    type: Schema.Types.ObjectId,
+    ref: "posts",
+    required: true,
+  },
 
-    _user: {
-        type: Schema.Types.ObjectId,
-        ref: 'users',
-        required: true
-    },
+  _user: {
+    type: Schema.Types.ObjectId,
+    ref: "users",
+    required: true,
+  },
 
-    contents: {
-        type: String,
-        required: true
-    },
+  contents: {
+    type: String,
+    required: true,
+  },
 
-    img: {
-        type: String
-    },
+  img: {
+    type: String,
+  },
 
-    likes: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    
-    regDate: {
-        type: Date,
-        required: true
-    },
+  likes: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 
-    modDate: {
-        type: Date,
-    },
+  regDate: {
+    type: Date,
+    required: true,
+  },
 
-    comments: [{
-        type: Schema.Types.ObjectId,
-        ref: 'comments'
-    }]
+  modDate: {
+    type: Date,
+  },
+
+  comments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "comments",
+    },
+  ],
 });
 
-commentSchema.pre('save', function(next) {
-    let comment = this;
-    if (comment.isModified('contents')) {
-        comment.modDate = Date.now();
-        next();
-    } else {
-        next();
-    }
+commentSchema.pre("save", function (next) {
+  let comment = this;
+  if (comment.isModified("contents")) {
+    comment.modDate = Date.now();
+    next();
+  } else {
+    next();
+  }
 });
 
-
-const Comment = mongoose.model('comments', commentSchema);
+const Comment = mongoose.model("comments", commentSchema);
 
 module.exports = { Comment };

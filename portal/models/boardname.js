@@ -1,28 +1,30 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
 const boardSchema = new Schema({
-    boardName: {
-        type: String,
-        required: true,
-        unique: 1
-    },
+  boardName: {
+    type: String,
+    required: true,
+    unique: 1,
+  },
 
-    url: {
-        type: String,
-        required: true,
-        unique: 1
-    },
+  url: {
+    type: String,
+    required: true,
+    unique: 1,
+  },
 
-    madeDate: {
-        type: String,
+  madeDate: {
+    type: String,
+  },
+  manager: [
+    {
+      id: { type: String },
     },
-    manager: [{
-        id: { type: String}
-    }]
+  ],
 });
 
-const Board = mongoose.model('boards', boardSchema);
+const Board = mongoose.model("boards", boardSchema);
 
 module.exports = { Board };
