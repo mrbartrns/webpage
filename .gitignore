@@ -1,3 +1,4 @@
 node_modules/
 portal/config.js
 portal/.env
+portal/script.js
