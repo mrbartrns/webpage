@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
-const test = require("./models/test");
+const { Sample, Test } = require("./models/test");
+const { User } = require("./models/user");
+const { Post } = require("./models/post");
+const { Comment } = require("./models/comment");
+const { UnorderedCollection } = require("http-errors");
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useFindAndModify", false);
@@ -11,29 +15,12 @@ mongoose.connect("mongodb://localhost:27017/boards", (err) => {
   console.log("mongodb server connected");
 });
 
-const { Test, Sample } = require("./models/test");
-
-// for (let i = 0; i < 2; i++) {
-//   const sample = new Sample();
-//   sample.text = "bye";
-//   sample.save();
-//   Test.findOne({ _id: "5f8fe43bfdc88257f8086934" })
-//     .then((test) => {
-//       test._sample.push(sample._id);
-//       return test.save();
-//     })
-//     .then((test) => console.log(test));
-// }
-
-console.log(test);
-Test.findOne({ _id: "5f8fe43bfdc88257f8086934" })
-  // can use splice after populate
-  .populate({
-    path: "_sample",
-    model: "samples",
-  })
-  .then((test) => {
-    console.log("type:", typeof test._sample);
-    test._sample.splice(0, test._sample.length);
-    console.log(test);
-  });
+User.findOne({ id: "testtest3" }).then((user) => {
+  console.log(user.myComments.$);
+});
+// User.updateOne(
+//   { id: "testtest3" },
+//   { $pull: { myComments: "5f9fd285188e4a0d1cab7a3d" } }
+// )
+//   .then((res) => console.log(res))
+//   .catch((err) => console.error(err));
