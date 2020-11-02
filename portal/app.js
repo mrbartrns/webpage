@@ -47,7 +47,8 @@ app.use(login);
 // 로그인 되어있는지 여부를 확인한다.
 app.get("/", (req, res) => {
   let isLogined = req.isLogined;
-  console.log(req.user);
+  // 로그인이 되지 않았더라면, undefinde가 뜬다.
+  console.log("로그인 한 유저:", req.user);
   Board.find()
     .then((boards) => {
       res.render("index", {
@@ -65,7 +66,7 @@ app.get("/", (req, res) => {
 // related to login, register routes
 require("./routes/login")(app);
 require("./routes/modify")(app);
-require("./routes/logout")(app, User, TokenBlackList);
+require("./routes/logout")(app);
 require("./routes/admin")(app, User);
 require("./routes/board")(app, User);
 require("./routes/token")(app);
