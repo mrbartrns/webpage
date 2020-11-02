@@ -58,6 +58,20 @@ commentSchema.pre("save", function (next) {
   }
 });
 
+commentSchema.pre("deleteOne", { document: true }, function () {
+  let comment = this;
+  comment
+    .model("posts")
+    .updateOne(
+      { comments: { $in: comment._id } },
+      {
+        $pull: { comments: comment._id },
+      }
+    )
+    .then((res) => res)
+    .catch((err) => err);
+});
+
 const Comment = mongoose.model("comments", commentSchema);
 
 module.exports = { Comment };

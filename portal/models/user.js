@@ -83,7 +83,7 @@ const userSchema = new Schema({
   myComments: [
     {
       type: Schema.Types.ObjectId,
-      ref: "comments",
+      ref: "posts",
     },
   ],
 
@@ -121,6 +121,12 @@ userSchema.pre("save", function (next) {
   } else {
     next();
   }
+});
+
+userSchema.pre("deleteOne", { document: true }, function () {
+  let user = this;
+  user.model("posts").deleteMany({ _user: { $in: user._id } });
+  user.modle("comments").deleteMany({ _user: { $in: user._id } });
 });
 
 userSchema.methods.comparePassword = function (plainPassword) {
