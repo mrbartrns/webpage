@@ -65,9 +65,11 @@ let auth = (req, res, next) => {
 
 let auth = (req, res, next) => {
   console.log("auth 미들웨어");
-  console.log(req.isLogined);
-  if (!req.isLogined)
+  console.log("로그인 여부:", req.isLogined);
+  if (!req.isLogined) {
+    console.log("권한이 없습니다.");
     return res.json({ isAuth: false, msg: "권한이 없습니다." });
+  }
   next();
 };
 
