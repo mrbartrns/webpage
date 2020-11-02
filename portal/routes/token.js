@@ -3,17 +3,22 @@
 const { User } = require("../models/user");
 require("dotenv").config();
 
-// 토큰이 만료되면 토큰을 재생성 => 현재는 access, refresh 모두 갱신함
 module.exports = (app) => {
+  // 토큰이만료되면 토큰을 새생성
   // request token api
   app.get("/token", (req, res) => {
     let refreshToken = req.cookies.r_auth;
     // console.log(refreshToken);
     // if not token, then do
+    console.log("token을 재발급 하는 라우트입니다.");
     User.findByToken(refreshToken, process.env.REFRESH_SECRET_CODE)
       .then((user) => {
+        console.log(user, !user);
         console.log("token을 찾았습니다.");
-        if (!user) res.json({ success: false, msg: "유저가 없습니다." });
+        if (!user) {
+          console.log("user가 없습니다.");
+          res.json({ success: false, msg: "유저가 없습니다." });
+        }
         return user;
       })
       .then((user) => user.generateToken())

@@ -13,9 +13,12 @@
       });
   }
 
-  // console.log(document.cookie);
-  // setTimeout(() => {
-  //   conso
-  // },1000 * 60 * 60)
+  console.log(document.cookie);
+  const timer = setTimeout(() => {
+    console.log("로그아웃 실행");
+    fetch("/logout");
+  }, 1000 * 60 * 60);
+
+  // clearTimeout(timer);
   requestToken();
 })();

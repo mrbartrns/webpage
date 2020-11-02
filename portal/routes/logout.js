@@ -1,6 +1,8 @@
 const { auth } = require("../middleware/auth");
+const { User } = require("../models/user");
+const { TokenBlackList } = require("../models/token");
 
-module.exports = (app, User, TokenBlackList) => {
+module.exports = (app) => {
   app.get("/logout", auth, (req, res) => {
     const token = req.token;
     const tokenBlackList = new TokenBlackList();

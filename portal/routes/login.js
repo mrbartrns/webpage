@@ -56,6 +56,7 @@ module.exports = (app) => {
             res
               .cookie(process.env.ACCESS_TOKEN_NAME, user.token, {
                 maxAge: 1000 * 60 * 60,
+                // maxAge: 1000 * 10, // test
               })
               .cookie(process.env.REFRESH_TOKEN_NAME, user.refreshToken, {
                 maxAge: 1000 * 60 * 60 * 24 * 7,

@@ -5,6 +5,8 @@ const { Board } = require("../models/boardname");
 const { Post } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
+const { PayloadTooLarge } = require("http-errors");
+const post = require("../models/post");
 
 module.exports = (app) => {
   // 게시판 글 목록 route
@@ -63,7 +65,10 @@ module.exports = (app) => {
     // 글쓴이(req.user._id)를 찾아 post._id를 참조할 수 있게 push후 저장
     User.findOne({ _id: req.user._id }).then((user) => {
       user.myArticles.push(post._id);
-      user.save();
+      user.save().then((user) => {
+        console.log("유저에 저장됨");
+        console.log(user);
+      });
     });
 
     // board 객체를 찾은 후, board._id를 post에 _board에 저장
@@ -185,6 +190,15 @@ module.exports = (app) => {
      * authorize User
      * delete post and post가 참조되어 있는 모든 collection documents
      */
+    Post.findOne({ _id: req.params.postid }).then((post) => {
+      post
+        .deleteOne()
+        .then((post) => {
+          console.log(post);
+          res.json({ success: true, msg: "삭제 완료" });
+        })
+        .catch((err) => console.log(err));
+    });
   });
 
   // 게시글 LIKE route (like 클릭시 post요청)
@@ -267,7 +281,9 @@ module.exports = (app) => {
       .then((user) => {
         if (!user) console.error("user not found");
         console.log("user found");
-        user.myComments.push(comment._id);
+        // 현재 commentId를 user 데이터베이스에 다이렉트로 저장했으나, 댓글이 있는 postid를 저장하는것으로 변경
+        // user.myComments.push(comment._id);
+        user.myComments.push(comment._post);
         user.save();
       })
       .then((_) => {
