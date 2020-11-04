@@ -33,18 +33,20 @@ const sampleSchema = new Schema({
 
 sampleSchema.pre("deleteOne", { document: true }, function () {
   console.log("hihihiihhii");
-  let sample = this;
   console.log("middleware로 들어옴");
-  return sample
+  let sample = this;
+  console.log(sample._id);
+
+  sample
     .model("tests")
     .updateOne(
       {
         _sample: { $in: sample._id },
       },
-      { $pullAll: { _sample: sample._id } }
+      { $pullAll: { _sample: [sample._id], _newSample: [sample._id] } }
     )
-    .then((res) => res)
-    .catch((err) => err);
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err));
 });
 
 const Test = mongoose.model("tests", testSchema);
