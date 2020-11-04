@@ -78,4 +78,89 @@ module.exports = (app) => {
 
     // models/user.js에 작성된 method는 User가 아닌 Document에서 사용되는 객체임
   });
+
+  app.post("/validate-id", (req, res) => {
+    let idFlag, idMsg;
+
+    const id = req.body.id;
+    // id 검증
+    if (id.length < 6 || id.length > 20) {
+      console.log("id검증");
+      idFlag = false;
+      idMsg = "id는 6글자 이상, 20글자 이하여야 합니다.";
+      res.json({ idFlag, idMsg });
+    } else {
+      User.findOne({ id: id })
+        .then((user) => {
+          if (!user) {
+            idFlag = true;
+            idMsg = "사용할 수 있는 id입니다.";
+          } else {
+            idFlag = false;
+            idMsg = "이미 사용중인 id입니다.";
+          }
+          res.json({ idFlag, idMsg });
+        })
+        .catch((err) => console.error(err));
+    }
+  });
+
+  app.post("/validate-email", (req, res) => {
+    let emailFlag, emailMsg;
+    const emailRegEx = /\w+@\w+\.\w+/;
+    const email = req.body.email;
+    // email 검증
+    console.log(email);
+    console.log(email.match(emailRegEx));
+    if (!email.match(emailRegEx)) {
+      console.log("이메일 형식");
+      emailFlag = false;
+      emailMsg = "email 형식과 맞지 않습니다.";
+      res.json({ emailFlag, emailMsg });
+    } else {
+      User.findOne({ email: email })
+        .then((user) => {
+          if (!user) {
+            console.log("사용가능 email");
+            emailFlag = true;
+            emailMsg = "사용할 수 있는 email입니다.";
+          } else {
+            console.log("사용중인 email");
+            emailFlag = false;
+            emailMsg = "이미 사용중인 email입니다.";
+          }
+          res.json({ emailFlag, emailMsg });
+        })
+        .catch((err) => console.error(err));
+    }
+  });
+
+  app.post("/validate-pw", (req, res) => {
+    let pwFlag, pwMsg;
+    const pw = req.body.pw;
+    console.log(pw);
+    if (pw.length < 8) {
+      pwFlag = false;
+      pwMsg = "비밀번호는 8자리 이상이어야 합니다.";
+    } else {
+      pwFlag = true;
+      pwMsg = "비밀번호가 조건을 충족합니다.";
+    }
+    res.json({ pwFlag, pwMsg });
+  });
+
+  app.post("/validate-nickname", (req, res) => {
+    let nickNameFlag, nickNameMsg;
+    const nickName = req.body.nickName;
+    User.findOne({ nickName: nickName }).then((user) => {
+      if (!user) {
+        nickNameFlag = true;
+        nickNameMsg = "사용할 수 있는 닉네임입니다.";
+      } else {
+        nickNameFlag = false;
+        nickNameMsg = "이미 사용중인 닉네임입니다.";
+      }
+      res.json({ nickNameFlag, nickNameMsg });
+    });
+  });
 };
