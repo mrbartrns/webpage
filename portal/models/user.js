@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 // const secretCode = require('../config').secret;
 require("dotenv").config();
 
-// User Schema 만들기
+// User Schema 만들기 - User Schema는 다른 정보가 아닌 User에게 필요한 정보만을 가지고 있어야 한다. >> 스키마 설계가 엄청 중요!
 const Schema = mongoose.Schema;
 
 // id, pw, salt, email, nickname, role, token, tokenExp
@@ -72,32 +72,6 @@ const userSchema = new Schema({
     type: Date,
   },
 
-  myArticles: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "posts",
-      index: true,
-    },
-  ],
-
-  myComments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "posts",
-    },
-  ],
-
-  myLikes: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "posts",
-    },
-  ],
-
-  recentAccess: {
-    type: Date,
-  },
-
   banned: {
     type: Boolean,
     required: true,
@@ -140,29 +114,6 @@ userSchema.methods.comparePassword = function (plainPassword) {
     resolve(isMatch);
   });
 };
-
-/*
-userSchema.methods.generateToken = function() {
-    let user = this;
-    // _id를 이용해서 토큰으로 만든다.
-    const token = jwt.sign({
-        _id: user._id,
-        id: user.id,
-        role: user.role
-    }, secretCode, {
-        expiresIn: '1h',
-        issuer: 'testissuer.com',
-        subject: 'userInfo'
-    });
-    // const token = jwt.sign(this._id.toHexString(),"secret token");
-
-    this.token = token;
-
-    return this.save()
-        .then(user => user)
-        .catch(err => err);
-}
-*/
 
 // 로그인시 기존의 refresh token을 blacklist에 추가 > 구현법?
 // token이 재발급 될 때 접속시간 갱신
