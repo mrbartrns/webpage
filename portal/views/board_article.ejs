@@ -4,6 +4,11 @@
         cursor: pointer;
     }
 
+    .article {
+        min-height: 500px;
+        overflow: visible;
+    }
+
     .comment-post {
             /* min-width: 20em; */
             min-height: 1.4em;
@@ -61,12 +66,23 @@
     <div class="meta">
         <div class="title"><h1><%= post.title %></h1></div>
         <span>views: <%= post.views %></span>
-        <span>likes: </span><span class="like"><%= post.likes %></span>
+        <!-- <span>likes: </span><span class="like"><%= // post.likes.length %></span> -->
+        <span>Likes: </span>
+        <button class="btn like <% if (!likeFlag) { %> 
+            btn-outline-danger
+            <% } else { %> 
+                btn-danger
+                <% } %>">
+                <%= post.likes.length %></button>
     </div>
+    <hr>
     <div class="content">
         <div class="article h2"><%- post.contents %></div> <!-- '='가 아닌 '-'를 써야 한다. 코드를 날것으로 보여주는 역할-->
     </div>
+    <hr>
     <div class="comments">
+        <h4>댓글</h4>
+        <br>
         <!-- 임시 -->
         <% if(post.comments.length === 0) { %>
             <div class="comment-show-area">
@@ -81,6 +97,7 @@
                         <% if (isLogined && comment._user.token === token) { %>
                             <a href="#">수정</a>
                             <a href="#">삭제</a>
+                            <a href="#">답글쓰기</a>
                         <% } %>
                     </div>
                     <div class="comment-show"><%- comment.contents %></div>
@@ -99,7 +116,7 @@
 
 <script>
     window.onload = () => {
-        const likeLink = document.querySelector('.like');
+        const likeBtn = document.querySelector('.like');
         const articleArea = document.querySelector('.article');
         const commentPosts = document.querySelectorAll('.comment-post');
         const commentSubmitBtns = document.querySelectorAll('.post-comment');
@@ -128,15 +145,23 @@
         }
 
         function deletePost() {
-            fetch("/board/<%= post._board.url %>/<%= post._id %>/delete", {
-                method: 'POST'
-            })
-            .then(res => res.json())
-            .then(res => console.log(res))
-            .catch(err => console.error(err))
+            if (confirm('정말 삭제하시겠습니까?')) {
+                fetch("/board/<%= post._board.url %>/<%= post._id %>/delete", {
+                    method: 'POST',
+                    redirect: 'follow'
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        alert(res.msg);
+                        window.location.href = "/board/<%=post._board.url %>";
+                    }
+                })
+                .catch(err => console.error(err))
+            }
         }
 
-        likeLink.addEventListener('click', (e) => {
+        likeBtn.addEventListener('click', (e) => {
             console.log(e);
             console.log('clicked');
             fetch('/board/<%= post._id %>/like', {
@@ -144,8 +169,20 @@
             })
             .then(blob => blob.json())
             .then(json => {
-                console.log(json);
-                likeLink.textContent = json;
+                if (json.success) {
+                    console.log(json);
+                    likeBtn.textContent = json.likes;
+                    if (json.flag) {
+                        likeBtn.classList.remove('btn-outline-danger');
+                        likeBtn.classList.add('btn-danger');
+                    } else {
+                        likeBtn.classList.remove('btn-danger');
+                        likeBtn.classList.add('btn-outline-danger');
+
+                    }
+                } else {
+                    console.log(json);
+                }
             });
         });
 

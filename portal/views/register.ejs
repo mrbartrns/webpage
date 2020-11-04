@@ -1,5 +1,10 @@
 <%- include ./header %>
-    <form method="POST" action="/register">
+<style>
+    .square {
+        height: 200px;
+    }
+</style>
+    <!-- <form method="POST" action="/register">
         <table>
             <tr>
                 <td><label for="id">ID</label></td>
@@ -19,5 +24,153 @@
             </tr>
         </table>
         <input type="submit">
-    </form>
+    </form> -->
+<div class="container">
+    <h2>회원가입 하기</h2>
+        <div class="square"></div>
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="id">ID</label>
+                <input type="text" class="form-control" id="id" required>
+                <div class="id">
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="pw">Password</label>
+                <input type="password" class="form-control" id="pw" required>
+                <div class="pw">
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="email">E-mail</label>
+                <input type="email" class="form-control" id="email" aria-describedby="emailFeedback" required>
+                <div class="email">
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="nickName">Nickname</label>
+                <input type="email" class="form-control" id="nickname" aria-describedby="nickNameFeedback" required>
+                <div class="nickname">
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary float-right" type="submit">Submit form</button>
+
+</div>
+<script>
+    const inputs = document.querySelectorAll("input");
+    
+    function validate() {
+        console.log(this);
+        console.log(this.value);
+        const feedback = document.querySelector(`.${this.id}`);
+        if (this.id === 'id') {
+            fetch(`/validate-${this.id}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: this.value,
+                }),
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(blob => blob.json())
+            .then(res => {
+                if (res.idFlag) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    feedback.classList.remove('invalid-feedback');
+                    feedback.classList.add('valid-feedback');
+                    feedback.textContent = res.idMsg;
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                    feedback.classList.remove('invalid-feedback');
+                    feedback.classList.add('valid-feedback');
+                    feedback.textContent = res.idMsg;
+                }
+            });
+        }
+        else if (this.id === 'email') {
+            fetch(`/validate-${this.id}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: this.value,
+                }),
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(blob => blob.json())
+            .then(res => {
+                if (res.emailFlag) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    feedback.classList.remove('invalid-feedback');
+                    feedback.classList.add('valid-feedback');
+                    feedback.textContent = res.emailMsg;
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                    feedback.classList.remove('valid-feedback');
+                    feedback.classList.add('invalid-feedback');
+                    feedback.textContent = res.emailMsg;
+                }
+            });
+        }
+        else if (this.id === 'pw') {
+            fetch(`/validate-${this.id}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    pw: this.value,
+                }),
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(blob => blob.json())
+            .then(res => {
+                if (res.pwFlag) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    feedback.classList.remove('invalid-feedback');
+                    feedback.classList.add('valid-feedback');
+                    feedback.textContent = res.pwMsg;
+                    
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                    feedback.classList.remove('valid-feedback');
+                    feedback.classList.add('invalid-feedback');
+                    feedback.textContent = res.pwMsg;
+                }
+            });
+        }
+        else if (this.id === 'nickname') {
+            fetch(`/validate-${this.id}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    nickname: this.value,
+                }),
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(blob => blob.json())
+            .then(res => {
+                if (res.nickNameFlag) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    feedback.classList.remove('invalid-feedback');
+                    feedback.classList.add('valid-feedback');
+                    feedback.textContent = res.nickNameMsg;
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                    feedback.classList.remove('valid-feedback');
+                    feedback.classList.add('invalid-feedback');
+                    feedback.textContent = res.nickNameMsg;
+                }
+            });
+        }
+    }
+
+    inputs.forEach(input => {
+        input.addEventListener('input', validate);
+    })
+</script>
 <%- include ./footer %>
