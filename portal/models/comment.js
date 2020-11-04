@@ -46,6 +46,12 @@ const commentSchema = new Schema({
       ref: "comments",
     },
   ],
+
+  depth: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
 });
 
 commentSchema.pre("save", function (next) {
@@ -70,6 +76,8 @@ commentSchema.pre("deleteOne", { document: true }, function () {
     )
     .then((res) => res)
     .catch((err) => err);
+
+  // comment에 달린 comment는 삭제되지 않을 것
 });
 
 const Comment = mongoose.model("comments", commentSchema);

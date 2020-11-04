@@ -18,11 +18,17 @@ const boardSchema = new Schema({
   madeDate: {
     type: String,
   },
+
   manager: [
     {
-      id: { type: String },
+      type: Schema.Types.ObjectId,
+      ref: "users",
     },
   ],
+
+  description: {
+    type: String,
+  },
 });
 
 const Board = mongoose.model("boards", boardSchema);

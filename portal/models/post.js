@@ -47,11 +47,21 @@ const postSchema = new Schema({
     default: 0,
   },
 
-  likes: {
+  orderNumber: {
     type: Number,
-    required: true,
-    default: 0,
   },
+
+  // likes: {
+  //   type: Number,
+  //   required: true,
+  //   default: 0,
+  // },
+  likes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
+  ],
 
   regDate: {
     type: Date,
@@ -82,44 +92,11 @@ postSchema.pre("save", function (next) {
 postSchema.pre("deleteOne", { document: true }, function () {
   console.log("delete middleware 들어옴");
   let post = this; // post: Document
-  /**
-   * post를 지우기 전에, User의 my articles, my likes를 모두 삭제한다.
-   */
-  post
-    .model("users")
-    .updateMany(
-      {
-        myArticles: { $in: post._id },
-      },
-      {
-        $pull: {
-          myArticles: post._id,
-          myLikes: post._id,
-          // "myComments.$._post": { _id: post._id },
-          myComments: post._id,
-        },
-      }
-    )
-    .then((res) => {
-      console.log("수정 완료");
-      console.log(res);
-    })
-    .catch((err) => {
-      console.log("수정 에러");
-      console.error(err);
-    });
-
   post
     .model("comments")
     .deleteMany({ _post: { $in: post._id } })
-    .then((res) => {
-      console.log("삭제 완료");
-      console.log(res);
-    })
-    .catch((err) => {
-      console.error("삭제 에러");
-      console.error(err);
-    });
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err));
 });
 
 postSchema.methods.authorizeUser = function (token) {
