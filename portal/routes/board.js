@@ -5,8 +5,14 @@ const { Board } = require("../models/boardname");
 const { Post } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
-const { PayloadTooLarge } = require("http-errors");
-const post = require("../models/post");
+
+let orderNumber;
+Post.countDocuments()
+  .then((number) => {
+    orderNumber = number;
+    console.log(orderNumber);
+  })
+  .catch((err) => console.error(err));
 
 module.exports = (app) => {
   // 게시판 글 목록 route
@@ -61,15 +67,7 @@ module.exports = (app) => {
     post.contents = req.body.contents;
     post._user = req.user._id;
     post.regDate = Date.now();
-
-    // 글쓴이(req.user._id)를 찾아 post._id를 참조할 수 있게 push후 저장
-    User.findOne({ _id: req.user._id }).then((user) => {
-      user.myArticles.push(post._id);
-      user.save().then((user) => {
-        console.log("유저에 저장됨");
-        console.log(user);
-      });
-    });
+    post.orderNumber = Number(`${Date.now()}${orderNumber}`);
 
     // board 객체를 찾은 후, board._id를 post에 _board에 저장
     Board.findOne({ url: req.params.boardurl })
@@ -84,12 +82,16 @@ module.exports = (app) => {
         res.redirect(`/board/${req.params.boardurl}`);
       })
       .catch((err) => {
+        console.error(err);
         res.json({ success: false, err });
       });
+
+    orderNumber++;
   });
 
   // 게시글 본문 route
   app.get("/board/:boardurl/:postid", view, (req, res) => {
+    let likeFlag;
     let token = req.token;
     let login = req.isLogined;
 
@@ -114,8 +116,7 @@ module.exports = (app) => {
         ],
       })
       .then((post) => {
-        console.log(post.comments[0]);
-
+        likeFlag = post.likes.indexOf(req.user._id) !== -1 ? true : false;
         // 본문이 본인이 쓴 글인지 확인한다.
         post.authorizeUser(token).then((isAuthorized) => {
           // isMe is used for verify post's writer
@@ -125,6 +126,7 @@ module.exports = (app) => {
             isLogined: login,
             token: token,
             title: `${post._board.boardName} - Portal`,
+            likeFlag: likeFlag,
           });
         });
       })
@@ -195,7 +197,7 @@ module.exports = (app) => {
         .deleteOne()
         .then((post) => {
           console.log(post);
-          res.json({ success: true, msg: "삭제 완료" });
+          res.json({ success: true, msg: "삭제가 완료되었습니다." });
         })
         .catch((err) => console.log(err));
     });
@@ -211,88 +213,75 @@ module.exports = (app) => {
      */
     console.log("like 라우트에 들어왔습니다");
     let likeFlag;
-    let likesCount;
-    User.findOne({ token: req.token })
-      .then((user) => {
-        console.log("phase 1");
-        if (user.myLikes.indexOf(req.params.postid) !== -1) {
-          const index = user.myLikes.indexOf(req.params.postid);
-
-          user.myLikes.splice(index, 1);
-          user.save();
-
+    const user = req.user;
+    // Post.updateOne({_id: {$in: req.params.postid}}, {
+    //   $push: {}
+    // })
+    Post.findOne({ _id: req.params.postid })
+      .then((post) => {
+        console.log("post를 찾았습니다");
+        // res.json({ success: true, likes: 1 });
+        // const likes = post.likes.map((user) => user.toString());
+        // console.log(likes);
+        if (post.likes.indexOf(user._id) !== -1) {
+          console.log("사람이 있음");
+          const index = post.likes.indexOf(user._id);
+          post.likes.splice(index, 1);
+          console.log(post.likes);
           likeFlag = false;
         } else {
-          user.myLikes.push(req.params.postid);
-
-          // can rewrite mutable data
-          user.save();
+          console.log("사람이 없음");
+          post.likes.push(user._id);
+          console.log(post.likes);
           likeFlag = true;
         }
+        return post.save();
       })
-      .catch((err) => console.error(err));
-    Post.findById(req.params.postid)
       .then((post) => {
-        console.log("phase 2");
-        likesCount = post.likes;
-        console.log(likesCount);
-        console.log(likeFlag);
-        if (likeFlag) {
-          likesCount++;
-          console.log(likesCount);
-        } else {
-          likesCount--;
-          console.log(likesCount);
-        }
-
-        post.likes = likesCount;
-        console.log("after like:", post);
-        // not working+
-        post.save().then((post) => res.json(post.likes));
+        res.json({
+          success: true,
+          likes: post.likes.length,
+          flag: likeFlag,
+        });
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        res.json({ success: false, msg: "에러", err });
+      });
   });
 
   // post에 comment를 단다. comment에 comment를 달 때에는? //
   app.post("/board/:boardurl/:postid/comment/post", auth, (req, res) => {
+    const postId = req.params.postid;
     const comment = new Comment();
-    comment._post = req.params.postid;
+    comment._post = postId;
     comment._user = req.user._id;
     comment.contents = req.body.comment;
     comment.regDate = Date.now();
 
     // save comment on db
+
+    comment
+      .model("posts")
+      .updateOne(
+        { _id: postId },
+        {
+          $push: { comments: comment._id },
+        }
+      )
+      .then((comment) => {
+        console.log(comment);
+        console.log("comment saved in the post");
+        res.redirect(`/board/${req.params.boardurl}/${postId}`);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.json({ success: false, msg: "댓글을 저장하지 못했습니다.", err });
+      });
+
     comment.save().catch((err) => {
       console.error(err);
       res.json({ success: false, err });
     });
-
-    // save comment id on post
-    Post.findOne({ _id: req.params.postid })
-      .then((post) => {
-        if (!post) console.error("post not found");
-        post.comments.push(comment._id);
-        post.save();
-      })
-      .then((_) => console.log("post save done"))
-      .catch((err) => console.error(err));
-
-    User.findOne({ _id: req.user._id })
-      .then((user) => {
-        if (!user) console.error("user not found");
-        console.log("user found");
-        // 현재 commentId를 user 데이터베이스에 다이렉트로 저장했으나, 댓글이 있는 postid를 저장하는것으로 변경
-        // user.myComments.push(comment._id);
-        user.myComments.push(comment._post);
-        user.save();
-      })
-      .then((_) => {
-        console.log("user save done");
-        res.redirect(`/board/${req.params.boardurl}/${req.params.postid}`);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.json({ success: false, err });
-      });
   });
 };
