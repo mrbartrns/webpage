@@ -48,7 +48,7 @@ app.use(login);
 app.get("/", (req, res) => {
   let isLogined = req.isLogined;
   // 로그인이 되지 않았더라면, undefinde가 뜬다.
-  console.log("로그인 한 유저:", req.user);
+  // console.log("로그인 한 유저:", req.user);
   Board.find()
     .then((boards) => {
       res.render("index", {
