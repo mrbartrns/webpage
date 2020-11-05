@@ -82,13 +82,13 @@ module.exports = (app) => {
   app.post("/validate-id", (req, res) => {
     let idFlag, idMsg;
 
-    const id = req.body.id;
+    const id = req.body.value;
     // id 검증
     if (id.length < 6 || id.length > 20) {
       console.log("id검증");
       idFlag = false;
       idMsg = "id는 6글자 이상, 20글자 이하여야 합니다.";
-      res.json({ idFlag, idMsg });
+      res.json({ flag: idFlag, msg: idMsg });
     } else {
       User.findOne({ id: id })
         .then((user) => {
@@ -99,7 +99,7 @@ module.exports = (app) => {
             idFlag = false;
             idMsg = "이미 사용중인 id입니다.";
           }
-          res.json({ idFlag, idMsg });
+          res.json({ flag: idFlag, msg: idMsg });
         })
         .catch((err) => console.error(err));
     }
@@ -108,7 +108,7 @@ module.exports = (app) => {
   app.post("/validate-email", (req, res) => {
     let emailFlag, emailMsg;
     const emailRegEx = /\w+@\w+\.\w+/;
-    const email = req.body.email;
+    const email = req.body.value;
     // email 검증
     console.log(email);
     console.log(email.match(emailRegEx));
@@ -129,7 +129,7 @@ module.exports = (app) => {
             emailFlag = false;
             emailMsg = "이미 사용중인 email입니다.";
           }
-          res.json({ emailFlag, emailMsg });
+          res.json({ flag: emailFlag, msg: emailMsg });
         })
         .catch((err) => console.error(err));
     }
@@ -137,7 +137,7 @@ module.exports = (app) => {
 
   app.post("/validate-pw", (req, res) => {
     let pwFlag, pwMsg;
-    const pw = req.body.pw;
+    const pw = req.body.value;
     console.log(pw);
     if (pw.length < 8) {
       pwFlag = false;
@@ -146,12 +146,12 @@ module.exports = (app) => {
       pwFlag = true;
       pwMsg = "비밀번호가 조건을 충족합니다.";
     }
-    res.json({ pwFlag, pwMsg });
+    res.json({ flag: pwFlag, msg: pwMsg });
   });
 
   app.post("/validate-nickname", (req, res) => {
     let nickNameFlag, nickNameMsg;
-    const nickName = req.body.nickName;
+    const nickName = req.body.value;
     User.findOne({ nickName: nickName }).then((user) => {
       if (!user) {
         nickNameFlag = true;
@@ -160,7 +160,7 @@ module.exports = (app) => {
         nickNameFlag = false;
         nickNameMsg = "이미 사용중인 닉네임입니다.";
       }
-      res.json({ nickNameFlag, nickNameMsg });
+      res.json({ flag: nickNameFlag, msg: nickNameMsg });
     });
   });
 };

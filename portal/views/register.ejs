@@ -66,107 +66,31 @@
         console.log(this);
         console.log(this.value);
         const feedback = document.querySelector(`.${this.id}`);
-        if (this.id === 'id') {
-            fetch(`/validate-${this.id}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    id: this.value,
-                }),
-                headers: {'Content-Type': 'application/json'}
-            })
-            .then(blob => blob.json())
-            .then(res => {
-                if (res.idFlag) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                    feedback.classList.remove('invalid-feedback');
-                    feedback.classList.add('valid-feedback');
-                    feedback.textContent = res.idMsg;
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                    feedback.classList.remove('invalid-feedback');
-                    feedback.classList.add('valid-feedback');
-                    feedback.textContent = res.idMsg;
-                }
-            });
-        }
-        else if (this.id === 'email') {
-            fetch(`/validate-${this.id}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    email: this.value,
-                }),
-                headers: {'Content-Type': 'application/json'}
-            })
-            .then(blob => blob.json())
-            .then(res => {
-                if (res.emailFlag) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                    feedback.classList.remove('invalid-feedback');
-                    feedback.classList.add('valid-feedback');
-                    feedback.textContent = res.emailMsg;
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                    feedback.classList.remove('valid-feedback');
-                    feedback.classList.add('invalid-feedback');
-                    feedback.textContent = res.emailMsg;
-                }
-            });
-        }
-        else if (this.id === 'pw') {
-            fetch(`/validate-${this.id}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    pw: this.value,
-                }),
-                headers: {'Content-Type': 'application/json'}
-            })
-            .then(blob => blob.json())
-            .then(res => {
-                if (res.pwFlag) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                    feedback.classList.remove('invalid-feedback');
-                    feedback.classList.add('valid-feedback');
-                    feedback.textContent = res.pwMsg;
-                    
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                    feedback.classList.remove('valid-feedback');
-                    feedback.classList.add('invalid-feedback');
-                    feedback.textContent = res.pwMsg;
-                }
-            });
-        }
-        else if (this.id === 'nickname') {
-            fetch(`/validate-${this.id}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    nickname: this.value,
-                }),
-                headers: {'Content-Type': 'application/json'}
-            })
-            .then(blob => blob.json())
-            .then(res => {
-                if (res.nickNameFlag) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                    feedback.classList.remove('invalid-feedback');
-                    feedback.classList.add('valid-feedback');
-                    feedback.textContent = res.nickNameMsg;
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                    feedback.classList.remove('valid-feedback');
-                    feedback.classList.add('invalid-feedback');
-                    feedback.textContent = res.nickNameMsg;
-                }
-            });
-        }
+        fetch(`/validate-${this.id}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                value: this.value,
+            }),
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(blob => blob.json())
+        .then(res => {
+            console.log(res);
+            feedback.textContent = res.msg;
+            if (res.flag) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+                feedback.classList.remove('invalid-feedback');
+                feedback.classList.add('valid-feedback');
+                
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+                feedback.classList.remove('invalid-feedback');
+                feedback.classList.add('valid-feedback');
+                
+            }
+        });
     }
 
     inputs.forEach(input => {

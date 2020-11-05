@@ -6,6 +6,8 @@ const { Post } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
 
+// mongoose findOne => save형식으로 진행
+// 아니면 그냥 쿼리 updateOne > push pull inc set 등등
 let orderNumber;
 Post.countDocuments()
   .then((number) => {

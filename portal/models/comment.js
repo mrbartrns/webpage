@@ -64,6 +64,7 @@ commentSchema.pre("save", function (next) {
   }
 });
 
+// mongoose function을 쓰려면 findOne 한다음 save만 가능
 commentSchema.pre("deleteOne", { document: true }, function () {
   let comment = this;
   comment
