@@ -260,30 +260,42 @@ module.exports = (app) => {
     comment._user = req.user._id;
     comment.contents = req.body.comment;
     comment.regDate = Date.now();
+    if (req.body.commentSn) {
+      console.log("child comment");
+      Comment.findOne({ _id: req.body.commentSn }).then((self) => {
+        if (!self) console.log("no comment upper");
+        self.comments.push(comment);
+        self.save();
+      });
+    } else {
+      // 첫번째 root comment일때
+      console.log("root comment");
+      comment
+        .model("posts")
+        .updateOne(
+          { _id: postId },
+          {
+            $push: { comments: comment._id },
+          }
+        )
+        .then((comment) => {
+          console.log(comment);
+          console.log("comment saved in the post");
+          res.redirect(`/board/${req.params.boardurl}/${postId}`);
+        })
+        .catch((err) => {
+          console.error(err);
+          res.json({ success: false, msg: "댓글을 저장하지 못했습니다.", err });
+        });
+    }
 
     // save comment on db
-
     comment
-      .model("posts")
-      .updateOne(
-        { _id: postId },
-        {
-          $push: { comments: comment._id },
-        }
-      )
-      .then((comment) => {
-        console.log(comment);
-        console.log("comment saved in the post");
-        res.redirect(`/board/${req.params.boardurl}/${postId}`);
-      })
+      .save()
+      .then((res) => console.log(res))
       .catch((err) => {
         console.error(err);
-        res.json({ success: false, msg: "댓글을 저장하지 못했습니다.", err });
+        res.json({ success: false, err });
       });
-
-    comment.save().catch((err) => {
-      console.error(err);
-      res.json({ success: false, err });
-    });
   });
 };

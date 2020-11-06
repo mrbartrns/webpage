@@ -1,206 +1,305 @@
 <%- include ./header %>
 <style>
     .like, .delete {
-        cursor: pointer;
+      cursor: pointer;
     }
 
     .article {
-        min-height: 500px;
-        overflow: visible;
+      min-height: 500px;
+      overflow: visible;
+    }
+    
+    #comment-write {
+      width: 100%;
+      resize: none;
+      overflow: hidden;
+      min-height: 60px;
+      /* max-height: 100px;*/ 
     }
 
     .comment-post {
-            /* min-width: 20em; */
-            min-height: 1.4em;
-            /* max-width: 40em; */
-            max-height: 10em;
-            width: inherit;
-            height: 20em;
-            padding: 0.5em 0.5em 0 0.5em;
-            background-color: white;
-            font-size: normal;
-            text-align: left;
-            border: 2px solid grey;
-            border-radius: 5px;
-            overflow-y: auto;
-            margin: 1em 0;
+      /* min-width: 20em; */
+      min-height: 1.4em;
+      /* max-width: 40em; */
+      max-height: 10em;
+      width: inherit;
+      height: 20em;
+      padding: 0.5em 0.5em 0 0.5em;
+      background-color: white;
+      font-size: normal;
+      text-align: left;
+      border: 2px solid grey;
+      border-radius: 5px;
+      overflow-y: auto;
+      margin: 1em 0;
         }
+      
+    .comment-post:focus {
+      border: 2px solid black;
+      border-radius: 5px;
+    }
 
-        .comment-post:focus {
-            border: 2px solid black;
-            border-radius: 5px;
-        }
+    .comment-post > * {
+      /* padding: 0.35rem 0; */
+      margin: 0.4rem 0;
+    }
 
-        .comment-post > * {
-             /* padding: 0.35rem 0; */
-             margin: 0.4rem 0;
-        }
-        .post-comment {
-            cursor: pointer;
-            background-color: #77ba99;
-            font-weight: 600;
-            font-size: normal;
-            padding: 8px 16px;
-            color: white;
-            border: none;
-            border-radius: 0.2rem;
-            float: right;
-            outline: none;
-        }
+    #post-comment {
+      cursor: pointer;
+      background-color: #77ba99;
+      font-weight: 600;
+      font-size: normal;
+      padding: 8px 16px;
+      color: white;
+      border: none;
+      border-radius: 0.2rem;
+      float: right;
+      outline: none;
+    }
 
-        .post-comment:focus, .post-comment:hover, .post-comment:active {
-            background-color:  #659b80;
-            border: none;
-            outline: none;
-        }
-
+    #post-comment:focus, .post-comment:hover, .post-comment:active {
+      background-color:  #659b80;
+      border: none;
+      outline: none;
+    }
 </style>
+<script>
+  function autoGrow(element) {
+    element.style.height = "5px";
+    element.style.height = (element.scrollHeight)+"px";
+  }
 
+  function submitComment(commentSn = null) {
+    // const comment = e.parentNode
+    const comment = this.parentNode.children.comment.innerHTML;
+    console.log(comment);
+    fetch('/board/<%= post._board.url %>/<%= post._id %>/comment/post', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        comment: comment,
+        commentSn: commentSn
+      }),
+      redirect: 'follow'
+    })
+    .then(res => {
+      window.location.href = res.url;
+    })
+    .then(json => {
+      console.log(json);
+    });
+  }
+
+</script>
+<input type="hidden" id="postid" value="<%= post._id%>">
 <div class="container">
-    <div class="header">
-        <% if (isMe) { %>
-            <span><a href="/board/<%= post._board.url %>/<%= post._id %>/edit">수정</a></span>
-            <span><a class="delete">삭제</a></span>
-        <% } %>
-    </div>
+  <div class="header">
     <div class="meta">
-        <div class="title"><h1><%= post.title %></h1></div>
-        <span>views: <%= post.views %></span>
-        <!-- <span>likes: </span><span class="like"><%= // post.likes.length %></span> -->
-        <span>Likes: </span>
-        <button class="btn like <% if (!likeFlag) { %> 
-            btn-outline-danger
-            <% } else { %> 
-                btn-danger
-                <% } %>">
-                <%= post.likes.length %></button>
+      <div class="title"><h1><%= post.title %></h1></div>
+      <span>id: <%= post._user.id %></span>
+      <span>views: <%= post.views %></span>
+      <!-- <span>likes: </span><span class="like"><%= // post.likes.length %></span> -->
+      <span>Likes: </span>
+      <button class="btn like <% if (!likeFlag) { %> 
+        btn-outline-danger
+        <% } else { %> 
+          btn-danger
+        <% } %>">
+          <%= post.likes.length %>
+        </button>
     </div>
-    <hr>
-    <div class="content">
-        <div class="article h2"><%- post.contents %></div> <!-- '='가 아닌 '-'를 써야 한다. 코드를 날것으로 보여주는 역할-->
-    </div>
-    <hr>
-    <div class="comments">
-        <h4>댓글</h4>
-        <br>
-        <!-- 임시 -->
-        <% if(post.comments.length === 0) { %>
-            <div class="comment-show-area">
-                <p>댓글이 없습니다.</p>
+    <% if (isMe) { %>
+      <span><a href="/board/<%= post._board.url %>/<%= post._id %>/edit">수정</a></span>
+      <span><a class="delete">삭제</a></span>
+    <% } %>
+  </div>
+
+  <hr>
+  <div class="content">
+    <div class="article h2"><%- post.contents %></div> <!-- '='가 아닌 '-'를 써야 한다. 코드를 날것으로 보여주는 역할-->
+  </div>
+  <hr>
+  <div class="comments">
+    <h4>댓글</h4>
+    <br>
+    <!-- 임시 -->
+    <% if(post.comments.length === 0) { %>
+      <div class="no-comment">
+        <p>댓글이 없습니다.</p>
+      </div>
+    <% } else { %>
+      <% post.comments.forEach(comment => { %>
+        <div class="comment-row" data-commentsn="<%= comment._id %>">
+          <div class="comment-row-header">
+            <a href="#"><%= comment._user.nickName %></a>
+            <a href="#"><%= comment.regDate %></a>
+            <% if (isLogined && comment._user.token === token) { %>
+              <a href="#" class="comment-edit">수정</a>
+              <a href="#" class="comment-delete">삭제</a>
+            <% } %>
+            <% if (isLogined) { %>
+              <a href="#" class="comment-reply">답글쓰기</a>
+            <% } %>
+          </div>
+          <div class="comment-show">
+            <div class="comment-content">
+              <div class="comment-view" data-role="<%= comment._id %>">
+                <%- comment.contents %>
+              </div>
             </div>
-        <% } else { %>
-            <% post.comments.forEach(comment => { %>
-                <div class="comment-show-area">
-                    <div class="comment-show-header">
-                        <a href="#"><%= comment._user.nickName %></a>
-                        <a href="#"><%= comment.regDate %></a>
-                        <% if (isLogined && comment._user.token === token) { %>
-                            <a href="#">수정</a>
-                            <a href="#">삭제</a>
-                            <a href="#">답글쓰기</a>
-                        <% } %>
-                    </div>
-                    <div class="comment-show"><%- comment.contents %></div>
+          </div>
+        </div>
+        <% if (comment.comments.length !== 0) { %>
+          <% comment.comments.forEach(child => { %>
+            <div class="comment-row-re" data-commentsn="<%= comment._id %>">
+              <div class="comment-row-header">
+                <a href="#"><%= child._user.nickName %></a>
+                <a href="#"><%= child.regDate %></a>
+                <% if (isLogined && comment._user.token === token) { %>
+                  <a href="#" class="comment-edit">수정</a>
+                  <a href="#" class="comment-delete">삭제</a>
+                <% } %>
+                <% if (isLogined) { %>
+                  <a href="#" class="comment-reply">답글쓰기</a>
+                <% } %>
+              </div>
+              <div class="comment-show">
+                <div class="comment-content">
+                  <div class="comment-view" data-role="<%= child._id %>">
+                    <%- child.contents %>
+                  </div>
                 </div>
-            <% }); %>
-        <% } %>
-        <% if(isLogined) { %>
-            <div class="comment-post-area">
-                <div name="comment" class="comment-post" contenteditable="true"><p><br></p></div>
-                <button type="button" class="post-comment">글쓰기</button>
+              </div>
             </div>
+          <% }); %>
         <% } %>
-    </div>
+      <% }); %>
+    <% } %>
+    <% if (isLogined) { %>
+        <div class="comment-post-area" id="comment-box">
+          <textarea rows="3" oninput="autoGrow(this)" id="comment-write"></textarea>
+          <button type="button" id="post-comment" onclick="submitComment()">글쓰기</button>
+        </div>
+    <% } %>
+  </div>
 </div>
 
-
 <script>
-    window.onload = () => {
-        const likeBtn = document.querySelector('.like');
-        const articleArea = document.querySelector('.article');
-        const commentPosts = document.querySelectorAll('.comment-post');
-        const commentSubmitBtns = document.querySelectorAll('.post-comment');
-        const deleteLink = document.querySelector(".delete");
+  window.onload = () => {
+    const likeBtn = document.querySelector('.like'),
+      articleArea = document.querySelector('.article'),
+      // commentPosts = document.querySelectorAll('.comment-post'),
+      commentSubmitBtn = document.querySelector('#post-comment'),
+      deleteLink = document.querySelector(".delete"),
+      commentEditBtns = document.querySelectorAll(".comment-edit"),
+      commentReplybtns = document.querySelectorAll(".comment-reply"),
+      textarea = document.querySelector("textarea"),
+      commentBox = document.querySelector('#comment-box');
 
-        function submitComment() {
-            // const comment = e.parentNode
-            const comment = this.parentNode.children.comment.innerHTML;
-            console.log(comment);
-            fetch('/board/<%= post._board.url %>/<%= post._id %>/comment/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    comment: comment
-                }),
-                redirect: 'follow'
-            })
-            .then(res => {
-                window.location.href = res.url;
-            })
-            .then(json => {
-                console.log(json);
-            });
-        }
 
-        function deletePost() {
-            if (confirm('정말 삭제하시겠습니까?')) {
-                fetch("/board/<%= post._board.url %>/<%= post._id %>/delete", {
-                    method: 'POST',
-                    redirect: 'follow'
-                })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) {
-                        alert(res.msg);
-                        window.location.href = "/board/<%=post._board.url %>";
-                    }
-                })
-                .catch(err => console.error(err))
-            }
-        }
 
-        likeBtn.addEventListener('click', (e) => {
-            console.log(e);
-            console.log('clicked');
-            fetch('/board/<%= post._id %>/like', {
-                method: 'POST',
-            })
-            .then(blob => blob.json())
-            .then(json => {
-                if (json.success) {
-                    console.log(json);
-                    likeBtn.textContent = json.likes;
-                    if (json.flag) {
-                        likeBtn.classList.remove('btn-outline-danger');
-                        likeBtn.classList.add('btn-danger');
-                    } else {
-                        likeBtn.classList.remove('btn-danger');
-                        likeBtn.classList.add('btn-outline-danger');
+    function deletePost() {
+      if (confirm('정말 삭제하시겠습니까?')) {
+        fetch("/board/<%= post._board.url %>/<%= post._id %>/delete", {
+          method: 'POST',
+          redirect: 'follow'
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            alert(res.msg);
+            window.location.href = "/board/<%=post._board.url %>";
+          }
+        })
+        .catch(err => console.error(err))
+      }
+    }
 
-                    }
-                } else {
-                    console.log(json);
-                }
-            });
-        });
+    /*
+    function showCommentPostBox() {
+      const commentSn = this.parentNode.parentNode.dataset.commentsn;
+      if (commentSn) {
+        console.log(commentSn);
+      }
+    }
+    */
+    function showCommentPostBox() {
+      let postComment = document.querySelector('#comment-box');
+      postComment.remove();
+      const commentRow = this.parentNode.parentNode;
+      const html = `<div class="comment-post-area" id="comment-box">
+        <textarea rows="3" oninput="autoGrow(this)" id="comment-write"></textarea>
+        <button type="button" id="post-comment" onclick="submitComment('${commentRow.dataset.commentsn}')">글쓰기</button>
+      </div>`;
 
-        commentPosts.forEach(post => {
-            post.addEventListener('input', (e) => {
-                if(!e.target.innerHTML) {
-                    post.innerHTML = '<p><br></p>';
-                }
-            })
-        });
-
-        commentSubmitBtns.forEach(btn => {
-            btn.addEventListener('click', submitComment);
-        });
-
-        deleteLink.addEventListener("click", deletePost);
+      commentRow.insertAdjacentHTML('afterend', html);
+      let postBtn = document.querySelector('#post-comment');
+      console.log(commentRow);
 
     }
+
+    likeBtn.addEventListener('click', (e) => {
+      console.log(e);
+      console.log('clicked');
+      fetch('/board/<%= post._id %>/like', {
+        method: 'POST',
+      })
+      .then(blob => blob.json())
+      .then(json => {
+        if (json.success) {
+          console.log(json);
+          likeBtn.textContent = json.likes;
+          if (json.flag) {
+            likeBtn.classList.remove('btn-outline-danger');
+            likeBtn.classList.add('btn-danger');
+          } else {
+            likeBtn.classList.remove('btn-danger');
+            likeBtn.classList.add('btn-outline-danger');
+
+          }
+        } else {
+            console.log(json);
+        }
+      });
+    });
+
+    /*
+    commentPosts.forEach(post => {
+      post.addEventListener('input', (e) => {
+        if(!e.target.innerHTML) {
+          post.innerHTML = '<p><br></p>';
+        }
+      })
+    });
+    */
+    /*   
+    if (commentSubmitBtn) {
+      commentSubmitBtn.addEventListener('click', submitComment);
+    }
+    */
+
+    if (deleteLink) {
+      deleteLink.addEventListener("click", deletePost);
+    }
+    
+  
+    if (commentReplybtns) {
+      commentReplybtns.forEach(btn => {
+        btn.addEventListener("click", showCommentPostBox)
+      })
+    }
+
+    /*
+    if (commentEditBtns) {
+      commentEditBtns.forEach(btn => {
+        btn.addEventListener('click', editComment);
+      })
+    }
+    */
+
+  }
 
 </script>
 <%- include ./footer %>
