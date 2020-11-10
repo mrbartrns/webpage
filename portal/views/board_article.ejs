@@ -69,9 +69,11 @@
     element.style.height = (element.scrollHeight)+"px";
   }
 
+  // submitComment 함수 작동x
   function submitComment(commentSn = null) {
     // const comment = e.parentNode
-    const comment = this.parentNode.children.comment.innerHTML;
+    // comment if commentSn === null
+    const comment = this.parentNode.children.comment.innerHTML; // not working
     console.log(comment);
     fetch('/board/<%= post._board.url %>/<%= post._id %>/comment/post', {
       method: 'POST',
@@ -125,12 +127,12 @@
     <h4>댓글</h4>
     <br>
     <!-- 임시 -->
-    <% if(post.comments.length === 0) { %>
+    <% if(comments.length === 0) { %>
       <div class="no-comment">
         <p>댓글이 없습니다.</p>
       </div>
     <% } else { %>
-      <% post.comments.forEach(comment => { %>
+      <% comments.forEach(comment => { %>
         <div class="comment-row" data-commentsn="<%= comment._id %>">
           <div class="comment-row-header">
             <a href="#"><%= comment._user.nickName %></a>
@@ -151,8 +153,8 @@
             </div>
           </div>
         </div>
-        <% if (comment.comments.length !== 0) { %>
-          <% comment.comments.forEach(child => { %>
+        <!-- <% if (comments.length !== 0) { %>
+          <% comments.forEach(child => { %>
             <div class="comment-row-re" data-commentsn="<%= comment._id %>">
               <div class="comment-row-header">
                 <a href="#"><%= child._user.nickName %></a>
@@ -173,7 +175,7 @@
                 </div>
               </div>
             </div>
-          <% }); %>
+          <% }); %> -->
         <% } %>
       <% }); %>
     <% } %>

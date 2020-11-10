@@ -5,6 +5,7 @@ const { Board } = require("../models/boardname");
 const { Post } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
+const post = require("../models/post");
 
 // mongoose findOne => save형식으로 진행
 // 아니면 그냥 쿼리 updateOne > push pull inc set 등등
@@ -92,12 +93,13 @@ module.exports = (app) => {
   });
 
   // 게시글 본문 route
-  app.get("/board/:boardurl/:postid", view, (req, res) => {
+  app.get("/board/:boardurl/:postid", view, async (req, res) => {
     let likeFlag;
     let token = req.token;
     let login = req.isLogined;
 
     // x_auth is name of Cookie
+    const comments = await Comment.find({ _post: req.params.postid });
     Post.findOne({ _id: req.params.postid })
       .populate({
         path: "_board",
@@ -107,16 +109,6 @@ module.exports = (app) => {
         path: "_user",
         model: "users",
       })
-      .populate({
-        path: "comments",
-        model: "comments",
-        populate: [
-          {
-            path: "_user",
-            model: "users",
-          },
-        ],
-      })
       .then((post) => {
         likeFlag = post.likes.indexOf(req.user._id) !== -1 ? true : false;
         // 본문이 본인이 쓴 글인지 확인한다.
@@ -124,6 +116,7 @@ module.exports = (app) => {
           // isMe is used for verify post's writer
           res.render("board_article", {
             post: post,
+            comments: comments,
             isMe: isAuthorized,
             isLogined: login,
             token: token,
