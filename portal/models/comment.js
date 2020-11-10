@@ -40,12 +40,19 @@ const commentSchema = new Schema({
     type: Date,
   },
 
+  parentComment: {
+    type: Schema.Types.ObjectId,
+    ref: "comments",
+  },
+
+  /*
   comments: [
     {
       type: Schema.Types.ObjectId,
       ref: "comments",
     },
   ],
+  */
 
   depth: {
     type: Number,
@@ -65,6 +72,7 @@ commentSchema.pre("save", function (next) {
 });
 
 // mongoose function을 쓰려면 findOne 한다음 save만 가능
+/*
 commentSchema.pre("deleteOne", { document: true }, function () {
   let comment = this;
   comment
@@ -80,6 +88,7 @@ commentSchema.pre("deleteOne", { document: true }, function () {
 
   // comment에 달린 comment는 삭제되지 않을 것
 });
+*/
 
 const Comment = mongoose.model("comments", commentSchema);
 

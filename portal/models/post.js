@@ -32,7 +32,7 @@ const postSchema = new Schema({
       type: String,
     },
   ],
-
+  /*
   comments: [
     {
       type: Schema.Types.ObjectId,
@@ -40,7 +40,7 @@ const postSchema = new Schema({
       index: true,
     },
   ],
-
+ */
   views: {
     type: Number,
     required: true,
