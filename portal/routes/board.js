@@ -254,12 +254,32 @@ module.exports = (app) => {
 
   // post에 comment를 단다. comment에 comment를 달 때에는? //
   app.post("/board/:boardurl/:postid/comment/post", auth, (req, res) => {
-    const postId = req.params.postid;
+    const postId = req.params.postid; // invisible value로 수정 예정
     const comment = new Comment();
     comment._post = postId;
     comment._user = req.user._id;
     comment.contents = req.body.comment;
     comment.regDate = Date.now();
+
+    if (!req.body.commentSn) {
+      // parentComment가 없을 때
+      console.log("parent comment");
+      // save postid and user,
+    } else {
+      // parentComment가 있을 때
+      console.log("child comment, parent comment is:", req.body.commentSn);
+      comment.depth = 2;
+      comment.parentComment = req.body.commentSn;
+    }
+    comment
+      .save()
+      .then((res) => console.log(res))
+      .catch((err) => {
+        console.error(err);
+        res.json({ success: false, err });
+      });
+
+    /*
     if (req.body.commentSn) {
       console.log("child comment");
       Comment.findOne({ _id: req.body.commentSn }).then((self) => {
@@ -288,14 +308,8 @@ module.exports = (app) => {
           res.json({ success: false, msg: "댓글을 저장하지 못했습니다.", err });
         });
     }
+    */
 
     // save comment on db
-    comment
-      .save()
-      .then((res) => console.log(res))
-      .catch((err) => {
-        console.error(err);
-        res.json({ success: false, err });
-      });
   });
 };
