@@ -146,7 +146,7 @@
       </div>
     <% } else { %>
       <% comments.forEach(comment => { %>
-        <div class="comment-row" data-commentsn="<%= comment._id %>">
+        <div class="comment-row" data-commentsn="<%= comment._id %>" data-parent="<%= comment.parentComment %>">
           <div class="comment-row-header">
             <a href="#"><%= comment._user.nickName %></a>
             <a href="#"><%= comment.regDate %></a>
