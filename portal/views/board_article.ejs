@@ -62,19 +62,18 @@
       border: none;
       outline: none;
     }
+
 </style>
 <script>
   function autoGrow(element) {
     element.style.height = "5px";
     element.style.height = (element.scrollHeight)+"px";
   }
-
-  // submitComment 함수 작동x
-  function submitComment(commentSn = null) {
-    // const comment = e.parentNode
-    // comment if commentSn === null
-    const comment = this.parentNode.children.comment.innerHTML; // not working
-    console.log(comment);
+  function submitComment(self, commentSn = null) {
+    console.log(self);
+    // console.dir(self.parentNode.childNodes[1].value);
+    console.log(commentSn);
+    const comment = self.parentNode.childNodes[1].value;
     fetch('/board/<%= post._board.url %>/<%= post._id %>/comment/post', {
       method: 'POST',
       headers: {
@@ -87,15 +86,29 @@
       redirect: 'follow'
     })
     .then(res => {
-      window.location.href = res.url;
+      if (res.ok) {
+        return res.json();
+      }
     })
     .then(json => {
       console.log(json);
+      if(json.success) {
+        window.location.reload();
+      }
+    })
+    .catch(err => {
+      alert('에러:', err);
     });
-  }
 
+  }
+  
 </script>
+<script src="/javascripts/postpage.js"></script>
+<!--post id and board url-->
 <input type="hidden" id="postid" value="<%= post._id%>">
+<input type="hidden" id="boardurl" vlaue="<%= post._board.url%>">
+
+<!--conatiner-->
 <div class="container">
   <div class="header">
     <div class="meta">
@@ -145,7 +158,7 @@
               <a href="#" class="comment-reply">답글쓰기</a>
             <% } %>
           </div>
-          <div class="comment-show">
+          <div class="comment-show my-2">
             <div class="comment-content">
               <div class="comment-view" data-role="<%= comment._id %>">
                 <%- comment.contents %>
@@ -153,155 +166,17 @@
             </div>
           </div>
         </div>
-        <!-- <% if (comments.length !== 0) { %>
-          <% comments.forEach(child => { %>
-            <div class="comment-row-re" data-commentsn="<%= comment._id %>">
-              <div class="comment-row-header">
-                <a href="#"><%= child._user.nickName %></a>
-                <a href="#"><%= child.regDate %></a>
-                <% if (isLogined && comment._user.token === token) { %>
-                  <a href="#" class="comment-edit">수정</a>
-                  <a href="#" class="comment-delete">삭제</a>
-                <% } %>
-                <% if (isLogined) { %>
-                  <a href="#" class="comment-reply">답글쓰기</a>
-                <% } %>
-              </div>
-              <div class="comment-show">
-                <div class="comment-content">
-                  <div class="comment-view" data-role="<%= child._id %>">
-                    <%- child.contents %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <% }); %> -->
-        <% } %>
+
       <% }); %>
     <% } %>
+    <br>
     <% if (isLogined) { %>
         <div class="comment-post-area" id="comment-box">
           <textarea rows="3" oninput="autoGrow(this)" id="comment-write"></textarea>
-          <button type="button" id="post-comment" onclick="submitComment()">글쓰기</button>
+          <button type="button" id="post-comment" onclick="submitComment(this)">글쓰기</button>
         </div>
     <% } %>
   </div>
 </div>
 
-<script>
-  window.onload = () => {
-    const likeBtn = document.querySelector('.like'),
-      articleArea = document.querySelector('.article'),
-      // commentPosts = document.querySelectorAll('.comment-post'),
-      commentSubmitBtn = document.querySelector('#post-comment'),
-      deleteLink = document.querySelector(".delete"),
-      commentEditBtns = document.querySelectorAll(".comment-edit"),
-      commentReplybtns = document.querySelectorAll(".comment-reply"),
-      textarea = document.querySelector("textarea"),
-      commentBox = document.querySelector('#comment-box');
-
-
-
-    function deletePost() {
-      if (confirm('정말 삭제하시겠습니까?')) {
-        fetch("/board/<%= post._board.url %>/<%= post._id %>/delete", {
-          method: 'POST',
-          redirect: 'follow'
-        })
-        .then(res => res.json())
-        .then(res => {
-          if (res.success) {
-            alert(res.msg);
-            window.location.href = "/board/<%=post._board.url %>";
-          }
-        })
-        .catch(err => console.error(err))
-      }
-    }
-
-    /*
-    function showCommentPostBox() {
-      const commentSn = this.parentNode.parentNode.dataset.commentsn;
-      if (commentSn) {
-        console.log(commentSn);
-      }
-    }
-    */
-    function showCommentPostBox() {
-      let postComment = document.querySelector('#comment-box');
-      postComment.remove();
-      const commentRow = this.parentNode.parentNode;
-      const html = `<div class="comment-post-area" id="comment-box">
-        <textarea rows="3" oninput="autoGrow(this)" id="comment-write"></textarea>
-        <button type="button" id="post-comment" onclick="submitComment('${commentRow.dataset.commentsn}')">글쓰기</button>
-      </div>`;
-
-      commentRow.insertAdjacentHTML('afterend', html);
-      let postBtn = document.querySelector('#post-comment');
-      console.log(commentRow);
-
-    }
-
-    likeBtn.addEventListener('click', (e) => {
-      console.log(e);
-      console.log('clicked');
-      fetch('/board/<%= post._id %>/like', {
-        method: 'POST',
-      })
-      .then(blob => blob.json())
-      .then(json => {
-        if (json.success) {
-          console.log(json);
-          likeBtn.textContent = json.likes;
-          if (json.flag) {
-            likeBtn.classList.remove('btn-outline-danger');
-            likeBtn.classList.add('btn-danger');
-          } else {
-            likeBtn.classList.remove('btn-danger');
-            likeBtn.classList.add('btn-outline-danger');
-
-          }
-        } else {
-            console.log(json);
-        }
-      });
-    });
-
-    /*
-    commentPosts.forEach(post => {
-      post.addEventListener('input', (e) => {
-        if(!e.target.innerHTML) {
-          post.innerHTML = '<p><br></p>';
-        }
-      })
-    });
-    */
-    /*   
-    if (commentSubmitBtn) {
-      commentSubmitBtn.addEventListener('click', submitComment);
-    }
-    */
-
-    if (deleteLink) {
-      deleteLink.addEventListener("click", deletePost);
-    }
-    
-  
-    if (commentReplybtns) {
-      commentReplybtns.forEach(btn => {
-        btn.addEventListener("click", showCommentPostBox)
-      })
-    }
-
-    /*
-    if (commentEditBtns) {
-      commentEditBtns.forEach(btn => {
-        btn.addEventListener('click', editComment);
-      })
-    }
-    */
-
-  }
-
-</script>
 <%- include ./footer %>
