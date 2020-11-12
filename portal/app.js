@@ -70,6 +70,7 @@ require("./routes/logout")(app);
 require("./routes/admin")(app, User);
 require("./routes/board")(app, User);
 require("./routes/token")(app);
+require("./routes/comment")(app);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
