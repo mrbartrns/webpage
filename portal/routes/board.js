@@ -5,8 +5,6 @@ const { Board } = require("../models/boardname");
 const { Post } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
-const post = require("../models/post");
-
 // mongoose findOne => save형식으로 진행
 // 아니면 그냥 쿼리 updateOne > push pull inc set 등등
 let orderNumber;
@@ -99,7 +97,13 @@ module.exports = (app) => {
     let login = req.isLogined;
 
     // x_auth is name of Cookie
-    const comments = await Comment.find({ _post: req.params.postid });
+    const comments = await Comment.find({ _post: req.params.postid })
+      .populate({
+        path: "_user",
+        model: "users",
+      })
+      .sort({ order: 1 });
+
     Post.findOne({ _id: req.params.postid })
       .populate({
         path: "_board",
@@ -222,7 +226,7 @@ module.exports = (app) => {
           console.log("사람이 있음");
           const index = post.likes.indexOf(user._id);
           post.likes.splice(index, 1);
-          console.log(post.likes);
+          console.log("like 한 사람:", post.likes);
           likeFlag = false;
         } else {
           console.log("사람이 없음");
@@ -246,63 +250,4 @@ module.exports = (app) => {
   });
 
   // post에 comment를 단다. comment에 comment를 달 때에는? //
-  app.post("/board/:boardurl/:postid/comment/post", auth, (req, res) => {
-    const postId = req.params.postid; // invisible value로 수정 예정
-    const comment = new Comment();
-    comment._post = postId;
-    comment._user = req.user._id;
-    comment.contents = req.body.comment;
-    comment.regDate = Date.now();
-
-    if (!req.body.commentSn) {
-      // parentComment가 없을 때
-      console.log("parent comment");
-      // save postid and user,
-    } else {
-      // parentComment가 있을 때
-      console.log("child comment, parent comment is:", req.body.commentSn);
-      comment.depth = 2;
-      comment.parentComment = req.body.commentSn;
-    }
-    comment
-      .save()
-      .then((res) => console.log(res))
-      .catch((err) => {
-        console.error(err);
-        res.json({ success: false, err });
-      });
-
-    /*
-    if (req.body.commentSn) {
-      console.log("child comment");
-      Comment.findOne({ _id: req.body.commentSn }).then((self) => {
-        if (!self) console.log("no comment upper");
-        self.comments.push(comment);
-        self.save();
-      });
-    } else {
-      // 첫번째 root comment일때
-      console.log("root comment");
-      comment
-        .model("posts")
-        .updateOne(
-          { _id: postId },
-          {
-            $push: { comments: comment._id },
-          }
-        )
-        .then((comment) => {
-          console.log(comment);
-          console.log("comment saved in the post");
-          res.redirect(`/board/${req.params.boardurl}/${postId}`);
-        })
-        .catch((err) => {
-          console.error(err);
-          res.json({ success: false, msg: "댓글을 저장하지 못했습니다.", err });
-        });
-    }
-    */
-
-    // save comment on db
-  });
 };
