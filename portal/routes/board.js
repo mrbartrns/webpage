@@ -213,15 +213,13 @@ module.exports = (app) => {
     console.log("like 라우트에 들어왔습니다");
     let likeFlag;
     const user = req.user;
-    // Post.updateOne({_id: {$in: req.params.postid}}, {
-    //   $push: {}
-    // })
-    Post.findOne({ _id: req.params.postid })
+    const postId = req.body.postId;
+    console.log(postId);
+
+    Post.findOne({ _id: postId })
       .then((post) => {
         console.log("post를 찾았습니다");
-        // res.json({ success: true, likes: 1 });
-        // const likes = post.likes.map((user) => user.toString());
-        // console.log(likes);
+
         if (post.likes.indexOf(user._id) !== -1) {
           console.log("사람이 있음");
           const index = post.likes.indexOf(user._id);
@@ -248,6 +246,4 @@ module.exports = (app) => {
         res.json({ success: false, msg: "에러", err });
       });
   });
-
-  // post에 comment를 단다. comment에 comment를 달 때에는? //
 };
