@@ -6,8 +6,8 @@ window.onload = () => {
     commentEditBtns = document.querySelectorAll(".comment-edit"),
     commentReplybtns = document.querySelectorAll(".comment-reply"),
     commentBox = document.querySelector("#comment-box"),
-    BOARD_URL = document.querySelector("#boardurl"),
-    POST_ID = document.querySelector("#postid");
+    BOARD_URL = document.querySelector("#boardurl").value,
+    POST_ID = document.querySelector("#postid").value;
 
   function deletePost() {
     if (confirm("정말 삭제하시겠습니까?")) {
@@ -46,6 +46,12 @@ window.onload = () => {
     console.log("clicked");
     fetch(`/board/${POST_ID}/like`, {
       method: "POST",
+      body: JSON.stringify({
+        postId: POST_ID,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
       .then((blob) => blob.json())
       .then((json) => {
