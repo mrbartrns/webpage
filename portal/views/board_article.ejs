@@ -154,7 +154,7 @@
               <a href="#" class="comment-edit">수정</a>
               <a href="#" class="comment-delete">삭제</a>
             <% } %>
-            <% if (isLogined) { %>
+            <% if (isLogined && !comment.parentComment) { %>
               <a href="#" class="comment-reply">답글쓰기</a>
             <% } %>
           </div>
