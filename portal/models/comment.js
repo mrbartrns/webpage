@@ -45,19 +45,20 @@ const commentSchema = new Schema({
     ref: "comments",
   },
 
-  /*
-  comments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "comments",
-    },
-  ],
-  */
-
   depth: {
     type: Number,
     required: true,
     default: 1,
+  },
+
+  order: {
+    type: Number,
+    required: true,
+  },
+
+  childs: {
+    type: Number,
+    default: 0,
   },
 });
 
@@ -71,24 +72,41 @@ commentSchema.pre("save", function (next) {
   }
 });
 
-// mongoose function을 쓰려면 findOne 한다음 save만 가능
-/*
-commentSchema.pre("deleteOne", { document: true }, function () {
+// 작동 x
+commentSchema.statics.setOrderNumber = async function (postId, commentSn) {
   let comment = this;
-  comment
-    .model("posts")
-    .updateOne(
-      { comments: { $in: comment._id } },
-      {
-        $pull: { comments: comment._id },
-      }
-    )
-    .then((res) => res)
-    .catch((err) => err);
+  let order;
+  if (!commentSn) {
+    order = await comment
+      .find({ _posat: postId })
+      .sort({ order: -1 })
+      .limit(1)
+      .then((standard) => {
+        return standard.length === 0 ? 0 : standard[0].order;
+      })
+      .catch((err) => console.error(err));
 
-  // comment에 달린 comment는 삭제되지 않을 것
-});
-*/
+    order++;
+    return order;
+  } else {
+    let parentOrder, parentChilds;
+
+    await comment.findOne({ _id: commentSn }).then((parent) => {
+      parentOrder = parent.order;
+      childs = parent.childs;
+      parentChilds = parent.childs + 1;
+      parent.childs = parentChilds;
+      order = parentOrder + childs + 1;
+      parent.save();
+
+      comment.updateMany(
+        { _post: postId, order: { $gt: parentOrder + childs } },
+        { $inc: { order: 1 } }
+      );
+      return order;
+    });
+  }
+};
 
 const Comment = mongoose.model("comments", commentSchema);
 
