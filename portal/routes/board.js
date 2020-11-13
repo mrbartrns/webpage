@@ -1,27 +1,53 @@
 // auth middleware: 로그인이 되어 있다면,
+const createError = require("http-errors");
 const { auth } = require("../middleware/auth");
 const { view } = require("../middleware/viewCount");
 const { Board } = require("../models/boardname");
 const { Post } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
+require("dotenv").config();
 // mongoose findOne => save형식으로 진행
 // 아니면 그냥 쿼리 updateOne > push pull inc set 등등
-let orderNumber;
-Post.countDocuments()
-  .then((number) => {
-    orderNumber = number;
-    console.log(orderNumber);
-  })
-  .catch((err) => console.error(err));
 
 module.exports = (app) => {
   // 게시판 글 목록 route
-  app.get("/board/:boardurl", async (req, res) => {
+  app.get("/board/:boardurl", async (req, res, next) => {
+    // 게시판 이름 및 현재 게시판 객체를 만듬
     const [boards, board] = await Promise.all([
       Board.find(),
       Board.findOne({ url: req.params.boardurl }),
     ]);
+
+    // 현재 위치와 시작점, 끝점을 프론트엔드로 보내 하단 네비게이션을 만듬
+    /**
+     * PO: 현재위치
+     * STARTPOINT: 네비게이션 시작포인트
+     * ENDPOINT: 네비게이션 끝 포인트
+     * MAX: 전체 문서 갯수. 10배수보다 크면 ENDPOINT사용, 그렇지 않을경우 MAX값 사용
+     */
+    const PO = req.query.po ? Number(req.query.po) : 0;
+
+    const STARTPOINT =
+      Math.floor(PO / Number(process.env.BOARD_ARTICLES_COUNTS)) *
+      Number(process.env.BOARD_ARTICLES_COUNTS);
+
+    const MAX = await Post.countDocuments({ _board: board._id }).then(
+      (number) => {
+        console.log("number:", number);
+        return Math.floor(number / Number(process.env.BOARD_ARTICLES_LIMIT));
+      }
+    );
+
+    const ENDPOINT =
+      (PO + 1) * Number(process.env.BOARD_ARTICLES_COUNTS) < MAX
+        ? (PO + 1) * Number(process.env.BOARD_ARTICLES_COUNTS)
+        : MAX;
+
+    // 쿼리에 다른 문자가 들어올경우, 에러를 내보냄
+    if (typeof PO !== "number" || PO > MAX) return next(createError(404)); // have to edit
+
+    // 30개씩 제한하여 한페이지를 구성
     Post.find({ _board: board._id })
       .populate({
         path: "_board",
@@ -31,13 +57,21 @@ module.exports = (app) => {
         path: "_user",
         model: "users",
       })
+      .sort({ order: -1 })
       .sort({ regDate: -1 })
+      .skip(PO * Number(process.env.BOARD_ARTICLES_LIMIT))
+      .limit(Number(process.env.BOARD_ARTICLES_LIMIT))
       .exec()
       .then((posts) => {
         res.render("board_main", {
           board: board,
           boards: boards,
           posts: posts,
+          po: PO,
+          startpoint: STARTPOINT,
+          counts: ENDPOINT,
+          canGoToNext:
+            (PO + 1) * Number(process.env.BOARD_ARTICLES_COUNTS) < MAX,
           title: `${board.boardName} - Portal`,
         });
       });
@@ -53,22 +87,16 @@ module.exports = (app) => {
   });
 
   // 글쓴 후 post route
-  app.post("/board/:boardurl/post", auth, (req, res) => {
-    /**
-     * make a new post instance (user.)
-     * save post._user in post
-     * save post._id in user
-     * find board._id with url(req.params.url)
-     * save post._board in post
-     */
-
+  app.post("/board/:boardurl/post", auth, async (req, res) => {
     // post 객체를 생성 > 제목, 본문, 글쓴이(req.user._id), 날짜, 수정 날짜를 저장(수정날짜는 자동으로 저장됨)
+    const orderNumber = await Post.countDocuments().then((number) => number);
+
     const post = new Post();
     post.title = req.body.title;
     post.contents = req.body.contents;
     post._user = req.user._id;
     post.regDate = Date.now();
-    post.orderNumber = Number(`${Date.now()}${orderNumber}`);
+    post.orderNumber = orderNumber + 1;
 
     // board 객체를 찾은 후, board._id를 post에 _board에 저장
     Board.findOne({ url: req.params.boardurl })

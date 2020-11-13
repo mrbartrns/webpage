@@ -9,6 +9,7 @@
         }
 
     </style>
+    <input type="hidden" id="board_id" data-id="<%= board._id %>">
     <h1><a href="/board/<%= board.url %>"><%= board.boardName %></a></h1>
     <div class="sidebar">
         <ul class="menu">
@@ -17,7 +18,7 @@
             <% }); %> 
         </ul>
         <a id="post-article" href="/board/<%= board.url %>/post">글쓰기</a>
-    </div>
+    </div class="contents" >
     <!-- <div class="list"> -->
         <table width="80%">
             <thead>
@@ -41,5 +42,19 @@
                 <% }); %>
             </tbody>
         </table>
+    </div>
+    <div class="goto">
+        <% if (startpoint >= 10) { %>
+            <a href="/board/<%= board.url %>?po=0">&lt;&lt;처음으로</a>
+        <% } %>
+        <% if (po > 0) { %>
+            <a href="/board/<%=board.url %>?po=<%=po - 1%>">&lt;이전</a>
+        <% } %>
+        <% for (let i = startpoint; i <= counts; i++) { %>
+            <a <%if (i === po) { %>class="here" <% } %>href="/board/<%= board.url %>?po=<%= i %>"><%= i + 1%></a>
+        <% } %>
+        <% if (canGoToNext) { %>
+            <a href="/board/<%= board.url %>/<%= counts + 1%>">다음&gt;&gt;</a>
+        <% } %>
     </div>
 <%- include ./footer %>
