@@ -8,27 +8,30 @@
         color: inherit;
       }
     </style>
-    <div class="header">
-      <h1><%= title %></h1>
-      <p>Welcome to <%= title %></p>
-      <br>
-      <% if (!login) { %>
-        <a href="/login">로그인하기</a>
+    <div class="container">
+      <div class="header">
+        <h1><%= title %></h1>
+        <p>Welcome to <%= title %></p>
         <br>
-        <a href="/register">회원가입</a>
-      <% } else { %>
-        <a href="/logout">로그아웃하기</a>
-      <% } %>
-      <br>
-      <% if (user && user.role >= 7 && user.role <= 9) { %>
-        <a href="/admin">관리자 페이지</a>
-      <% }%>
+        <% if (!login) { %>
+          <a href="/login">로그인하기</a>
+          <br>
+          <a href="/register">회원가입</a>
+        <% } else { %>
+          <a href="/logout">로그아웃하기</a>
+        <% } %>
+        <br>
+        <% if (user && user.role >= 7 && user.role <= 9) { %>
+          <a href="/admin">관리자 페이지</a>
+        <% }%>
+      </div>
+      <div class="sidebar">
+        <ul class="menu">
+          <% boards.forEach(board => { %>
+            <li><a href="/board/<%= board.url %>"><%= board.boardName %></a></li>
+         <% }) %> 
+        </ul>
+      </div>
     </div>
-    <div class="sidebar">
-      <ul class="menu">
-        <% boards.forEach(board => { %>
-          <li><a href="/board/<%= board.url %>"><%= board.boardName %></a></li>
-       <% }) %> 
-      </ul>
-    </div>
+    
 <%- include ./footer %>

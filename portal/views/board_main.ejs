@@ -1,60 +1,61 @@
 <%- include ./header %>
-    <style>
-        a {
-            text-decoration: none;
-        }
+<style>
+  a {
+      text-decoration: none;
+  }
 
-        a, a:hover, a:visited {
-            color: #BADA55;
-        }
+  a, a:hover, a:visited {
+      color: #BADA55;
+  }
 
-    </style>
-    <input type="hidden" id="board_id" data-id="<%= board._id %>">
-    <h1><a href="/board/<%= board.url %>"><%= board.boardName %></a></h1>
-    <div class="sidebar">
-        <ul class="menu">
-            <% boards.forEach(name => { %>
-                <li><span><a href="/board/<%= name.url %>"><%= name.boardName %></a></span></li>
-            <% }); %> 
-        </ul>
-        <a id="post-article" href="/board/<%= board.url %>/post">글쓰기</a>
-    </div class="contents" >
-    <!-- <div class="list"> -->
-        <table width="80%">
-            <thead>
-                <th>제목</th>
-                <th>닉네임</th>
-                <th>조회수</th>
-                <th>날짜</th>
-            </thead>
-            <tbody>
-                <% posts.forEach(post => { %>
-                    <% if (!post) { %>
-                        <tr align="center"><td>게시글이 없습니다.</td></tr>
-                    <% } else { %>
-                        <tr align="center">
-                            <td width="40%"><span><a href="/board/<%= post._board.url %>/<%= post._id %>"><%= post.title %></a></span></td>
-                            <td><span><%= post._user.nickName %></span></td>
-                            <td><span><%= post.views %></span></td>
-                            <td><span><%= post.regDate %></span></td>
-                        </tr>
-                    <% } %>
-                <% }); %>
-            </tbody>
-        </table>
-    </div>
-    <div class="goto">
-        <% if (startpoint >= 10) { %>
-            <a href="/board/<%= board.url %>?po=0">&lt;&lt;처음으로</a>
+</style>
+<input type="hidden" id="board_id" data-id="<%= board._id %>">
+<h1><a href="/board/<%= board.url %>"><%= board.boardName %></a></h1>
+<div class="sidebar">
+  <ul class="menu">
+    <% boards.forEach(name => { %>
+      <li><span><a href="/board/<%= name.url %>"><%= name.boardName %></a></span></li>
+    <% }); %> 
+  </ul>
+  <a id="post-article" href="/board/<%= board.url %>/post">글쓰기</a>
+</div class="contents" >
+<!-- <div class="list"> -->
+  <table width="80%">
+    <thead>
+        <th>제목</th>
+        <th>닉네임</th>
+        <th>조회수</th>
+        <th>날짜</th>
+    </thead>
+    <tbody>
+      <% posts.forEach(post => { %>
+        <% if (!post) { %>
+          <tr align="center"><td>게시글이 없습니다.</td></tr>
+        <% } else { %>
+          <tr align="center">
+            <td width="40%"><span><a href="/board/<%= post._board.url %>/<%= post._id %>"><%= post.title %></a></span></td>
+            <td><span><%= post._user.nickName %></span></td>
+            <td><span><%= post.views %></span></td>
+            <td><span class="date"><%= post.regDate %></span></td>      
+          </tr>
         <% } %>
-        <% if (po > 0) { %>
-            <a href="/board/<%=board.url %>?po=<%=po - 1%>">&lt;이전</a>
-        <% } %>
-        <% for (let i = startpoint; i <= counts; i++) { %>
-            <a <%if (i === po) { %>class="here" <% } %>href="/board/<%= board.url %>?po=<%= i %>"><%= i + 1%></a>
-        <% } %>
-        <% if (canGoToNext) { %>
-            <a href="/board/<%= board.url %>/<%= counts + 1%>">다음&gt;&gt;</a>
-        <% } %>
-    </div>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+<div class="goto">
+  <% if (startpoint >= 10) { %>
+      <a href="/board/<%= board.url %>?po=0">&lt;&lt;처음으로</a>
+  <% } %>
+  <% if (po > 0) { %>
+      <a href="/board/<%=board.url %>?po=<%=po - 1%>">&lt;이전</a>
+  <% } %>
+  <% for (let i = startpoint; i <= counts; i++) { %>
+      <a <%if (i === po) { %>class="here" <% } %>href="/board/<%= board.url %>?po=<%= i %>"><%= i + 1%></a>
+  <% } %>
+  <% if (canGoToNext) { %>
+      <a href="/board/<%= board.url %>/<%= counts + 1%>">다음&gt;&gt;</a>
+    <% } %>
+</div>
+<script src="/javascripts/dateformat.js"></script>
 <%- include ./footer %>
