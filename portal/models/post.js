@@ -47,7 +47,7 @@ const postSchema = new Schema({
     default: 0,
   },
 
-  orderNumber: {
+  order: {
     type: Number,
   },
 
