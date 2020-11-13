@@ -72,6 +72,16 @@ const userSchema = new Schema({
     type: Date,
   },
 
+  signUpDate: {
+    type: Date,
+    default: Date.now(),
+  },
+
+  signUpDateMongo: {
+    type: Date,
+    default: Date.now(),
+  },
+
   banned: {
     type: Boolean,
     required: true,

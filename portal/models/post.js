@@ -69,8 +69,13 @@ const postSchema = new Schema({
     default: Date.now(),
   },
 
-  modDate: {
+  regDateMongo: {
     type: Date,
+    default: Date.now(),
+  },
+
+  modDate: {
+    type: Number,
   },
 
   img: {

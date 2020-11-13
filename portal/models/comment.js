@@ -36,8 +36,14 @@ const commentSchema = new Schema({
     required: true,
   },
 
-  modDate: {
+  regDateMongo: {
     type: Date,
+    required: true,
+    default: Date.now(),
+  },
+
+  modDate: {
+    type: Number,
   },
 
   parentComment: {
