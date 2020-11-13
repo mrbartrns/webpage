@@ -1,8 +1,4 @@
 const { auth } = require("../middleware/auth");
-const { view } = require("../middleware/viewCount");
-const { Board } = require("../models/boardname");
-const { Post } = require("../models/post");
-const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
 
 module.exports = (app) => {
