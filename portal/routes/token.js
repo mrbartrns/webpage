@@ -8,9 +8,13 @@ module.exports = (app) => {
   // request token api
   app.get("/token", (req, res) => {
     let refreshToken = req.cookies.r_auth;
+    let accessToken = req.cookies.x_auth;
     // console.log(refreshToken);
     // if not token, then do
     console.log("token을 재발급 하는 라우트입니다.");
+    if (!accessToken)
+      return res.json({ success: false, msg: "엑세스 토큰이 만료되었습니다." });
+
     User.findByToken(refreshToken, process.env.REFRESH_SECRET_CODE)
       .then((user) => {
         console.log(user, !user);
