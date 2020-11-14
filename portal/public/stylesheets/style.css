@@ -1,7 +1,94 @@
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: rgb(228, 226, 226);
+}
+
+.navbar {
+  padding: 0.3rem 1rem;
+}
+
+.container {
+  max-width: 1300px;
+}
+
+.search {
+  background-color: rgb(235, 232, 232);
+  border-radius: 5px;
+}
+
+.total-search-btn {
+  border: none;
+  color: grey;
+  background-color: transparent;
+  box-shadow: none;
+  padding: .1rem .75rem;
+}
+
+.total-search-btn:hover {
+  background-color: inherit;
+  color: rgb(81, 122, 175);
+  box-shadow: none;
+}
+
+.total-search-btn:active, .total-search-btn:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+.total-search-input {
+  background-color: transparent;
+  outline: none;
+  border: none;
+  padding: .1rem .75rem;
+  padding-left: 0.25rem;
+  font-size: small;
+}
+
+.total-search-input:focus {
+  background-color: transparent;
+  outline: none;
+  box-shadow: none;
 }
 
 a {
   color: #00B7FF;
+}
+
+.like {
+  max-width: 10px;
+}
+
+.list-item {
+  align-items: start;
+}
+
+.sidebar {
+  background-color: white;
+  margin-right: 10px;
+  width: 208px;
+  max-width: 208px;
+}
+
+.main-content {
+  background-color: white;
+}
+
+.list-item {
+  height: 30px;
+  border-bottom: 0.1rem solid rgb(187, 187, 187);
+  padding: 1rem;
+}
+
+.list-item > * {
+  border-right: 0.1rem solid rgb(187, 187, 187);
+  padding: inherit;
+}
+
+.list-title {
+  width: 500px;
+}
+
+.goto {
+  margin: 0 auto;
 }
