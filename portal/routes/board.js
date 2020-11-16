@@ -21,16 +21,20 @@ module.exports = (app) => {
 
     // 현재 위치와 시작점, 끝점을 프론트엔드로 보내 하단 네비게이션을 만듬
     /**
-     * PO: 현재위치
+     * PO: 현재위치w
      * STARTPOINT: 네비게이션 시작포인트
      * ENDPOINT: 네비게이션 끝 포인트
      * MAX: 전체 문서 갯수. 10배수보다 크면 ENDPOINT사용, 그렇지 않을경우 MAX값 사용
      */
     const PO = req.query.po ? Number(req.query.po) : 0;
 
+    // console.log("po:", PO);
+
     const STARTPOINT =
       Math.floor(PO / Number(process.env.BOARD_ARTICLES_COUNTS)) *
       Number(process.env.BOARD_ARTICLES_COUNTS);
+
+    // console.log("STARTPOINT:", STARTPOINT);
 
     const MAX = await Post.countDocuments({ _board: board._id }).then(
       (number) => {
@@ -39,10 +43,14 @@ module.exports = (app) => {
       }
     );
 
+    // console.log("MAX:", MAX);
+
     const ENDPOINT =
       (PO + 1) * Number(process.env.BOARD_ARTICLES_COUNTS) < MAX
         ? (PO + 1) * Number(process.env.BOARD_ARTICLES_COUNTS)
         : MAX;
+
+    // console.log("ENDPOINT:", ENDPOINT);
 
     // 쿼리에 다른 문자가 들어올경우, 에러를 내보냄
     if (typeof PO !== "number" || PO > MAX) return next(createError(404)); // have to edit
@@ -63,6 +71,12 @@ module.exports = (app) => {
       .limit(Number(process.env.BOARD_ARTICLES_LIMIT))
       .exec()
       .then((posts) => {
+        try {
+          console.log(posts[0]._board.url);
+        } catch (e) {
+          console.log(e);
+        }
+
         res.render("board_main", {
           board: board,
           boards: boards,
@@ -89,15 +103,18 @@ module.exports = (app) => {
   // 글쓴 후 post route
   app.post("/board/:boardurl/post", auth, async (req, res) => {
     // post 객체를 생성 > 제목, 본문, 글쓴이(req.user._id), 날짜, 수정 날짜를 저장(수정날짜는 자동으로 저장됨)
-    const orderNumber = await Post.countDocuments().then((number) => number);
+    let orderNumber = await Post.countDocuments();
+
+    console.log("post route입니다.");
 
     const post = new Post();
     post.title = req.body.title;
     post.contents = req.body.contents;
+    post.cleanContents = req.body.cleanContents;
     post._user = req.user._id;
     post.regDate = Date.now();
     post.orderNumber = orderNumber + 1;
-
+    console.log("post:", post);
     // board 객체를 찾은 후, board._id를 post에 _board에 저장
     Board.findOne({ url: req.params.boardurl })
       .then((board) => {
@@ -164,6 +181,7 @@ module.exports = (app) => {
   });
 
   // 게시글 수정 route
+  // 수정 필요
   app.get("/board/:boardurl/:postid/edit", auth, (req, res) => {
     const postId = req.params.postid;
     Post.findOne({ _id: postId })
@@ -201,6 +219,7 @@ module.exports = (app) => {
       .then((post) => {
         post.title = req.body.title;
         post.contents = req.body.contents;
+        post.cleanContents = req.body.cleanContents;
         console.log("save done");
         return post.save();
       })

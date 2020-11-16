@@ -13,6 +13,7 @@ const userSchema = new Schema({
   id: {
     type: String,
     required: true,
+    trim: true,
     unique: 1,
     minlength: 6,
     maxlength: 20,
@@ -41,6 +42,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: 1,
+    minlength: 2,
   },
 
   role: {

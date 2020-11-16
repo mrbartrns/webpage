@@ -3,69 +3,56 @@
     .square {
         height: 200px;
     }
+
 </style>
-    <!-- <form method="POST" action="/register">
-        <table>
-            <tr>
-                <td><label for="id">ID</label></td>
-                <td><input type="text" name="id" id="id" required></td>
-            </tr>
-            <tr>
-                <td><label for="pw">Password</label></td>
-                <td><input type="password" name="pw" id="pw" required></td>
-            </tr>
-            <tr>
-                <td><label for="email">Email</label></td>
-                <td><input type="email" name="email" id="email" required></td>
-            </tr>
-            <tr>
-                <td><label for="nickname">Nickname</label></td>
-                <td><input type="text" name="nickname" id="nickname" required></td>
-            </tr>
-        </table>
-        <input type="submit">
-    </form> -->
+
 <div class="container">
-    <h2>회원가입 하기</h2>
-        <div class="square"></div>
-        <div class="form-row">
-            <div class="col-md-6 mb-3">
-                <label for="id">ID</label>
-                <input type="text" class="form-control" id="id" required>
-                <div class="id">
+    <h2>회원가입 하기</h2> 
+        <!--what is this?-->
+        <div class="square"></div> 
+        <div class="login-form">
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="id">ID</label>
+                    <input type="text" class="form-control" id="id" required>
+                    <div class="id">
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="pw">Password</label>
+                    <input type="password" class="form-control" id="pw" required>
+                    <div class="pw">
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-3">
-                <label for="pw">Password</label>
-                <input type="password" class="form-control" id="pw" required>
-                <div class="pw">
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="email">E-mail</label>
+                    <input type="email" class="form-control" id="email" aria-describedby="emailFeedback" required>
+                    <div class="email">
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nickName">Nickname</label>
+                    <input type="email" class="form-control" id="nickname" aria-describedby="nickNameFeedback" required>
+                    <div class="nickname">
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="form-row">
-            <div class="col-md-6 mb-3">
-                <label for="email">E-mail</label>
-                <input type="email" class="form-control" id="email" aria-describedby="emailFeedback" required>
-                <div class="email">
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="nickName">Nickname</label>
-                <input type="email" class="form-control" id="nickname" aria-describedby="nickNameFeedback" required>
-                <div class="nickname">
-                </div>
-            </div>
-        </div>
-        <button class="btn btn-primary float-right" type="submit">Submit form</button>
+        <button class="btn btn-primary float-right" id="login-submit" type="submit" disabled>Submit form</button>
 
 </div>
 <script>
-    const inputs = document.querySelectorAll("input");
-    
+    const form = document.querySelector('.login-form');
+    const inputs = form.querySelectorAll("input");
+    const submitBtn = document.querySelector('#login-submit');
+
     function validate() {
         console.log(this);
         console.log(this.value);
         const feedback = document.querySelector(`.${this.id}`);
+        // feedback.classList.add('invalid-feedback');
         fetch(`/validate-${this.id}`, {
             method: 'POST',
             body: JSON.stringify({
@@ -86,15 +73,26 @@
             } else {
                 this.classList.remove('is-valid');
                 this.classList.add('is-invalid');
-                feedback.classList.remove('invalid-feedback');
-                feedback.classList.add('valid-feedback');
+                feedback.classList.remove('valid-feedback');
+                feedback.classList.add('invalid-feedback');
                 
             }
+            activateFormBtn(submitBtn);
         });
+    }
+
+    function activateFormBtn(btn) {
+      if (inputs.length === document.querySelectorAll('.is-valid').length) {
+        btn.disabled = false;
+      } else {
+        btn.disabled = true;
+      }
     }
 
     inputs.forEach(input => {
         input.addEventListener('input', validate);
-    })
+    });
+
+    
 </script>
 <%- include ./footer %>

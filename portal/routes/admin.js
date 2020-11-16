@@ -18,7 +18,7 @@ module.exports = (app, User) => {
   });
 
   app.post("/admin/manageusers/modify/user/:id", auth, admin, (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     // {id: req.params.id};
     User.findOneAndUpdate(
       { _id: req.params.id },

@@ -79,6 +79,7 @@ module.exports = (app) => {
     // models/user.js에 작성된 method는 User가 아닌 Document에서 사용되는 객체임
   });
 
+  // todo: validation data 함수로 변경하기
   app.post("/validate-id", (req, res) => {
     let idFlag, idMsg;
 
@@ -116,7 +117,7 @@ module.exports = (app) => {
       console.log("이메일 형식");
       emailFlag = false;
       emailMsg = "email 형식과 맞지 않습니다.";
-      res.json({ emailFlag, emailMsg });
+      res.json({ flag: emailFlag, msg: emailMsg });
     } else {
       User.findOne({ email: email })
         .then((user) => {
@@ -152,15 +153,21 @@ module.exports = (app) => {
   app.post("/validate-nickname", (req, res) => {
     let nickNameFlag, nickNameMsg;
     const nickName = req.body.value;
-    User.findOne({ nickName: nickName }).then((user) => {
-      if (!user) {
-        nickNameFlag = true;
-        nickNameMsg = "사용할 수 있는 닉네임입니다.";
-      } else {
-        nickNameFlag = false;
-        nickNameMsg = "이미 사용중인 닉네임입니다.";
-      }
+    if (nickName.length < 2) {
+      nickNameFlag = false;
+      nickNameMsg = "닉네임은 최소 2글자 이상이여야 합니다.";
       res.json({ flag: nickNameFlag, msg: nickNameMsg });
-    });
+    } else {
+      User.findOne({ nickName: nickName }).then((user) => {
+        if (!user) {
+          nickNameFlag = true;
+          nickNameMsg = "사용할 수 있는 닉네임입니다.";
+        } else {
+          nickNameFlag = false;
+          nickNameMsg = "이미 사용중인 닉네임입니다.";
+        }
+        res.json({ flag: nickNameFlag, msg: nickNameMsg });
+      });
+    }
   });
 };

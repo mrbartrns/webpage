@@ -17,7 +17,6 @@ module.exports = (app) => {
 
     User.findByToken(refreshToken, process.env.REFRESH_SECRET_CODE)
       .then((user) => {
-        console.log(user, !user);
         console.log("token을 찾았습니다.");
         if (!user) {
           console.log("user가 없습니다.");

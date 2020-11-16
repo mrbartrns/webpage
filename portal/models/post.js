@@ -25,6 +25,13 @@ const postSchema = new Schema({
   contents: {
     type: String,
     required: true,
+    trim: true,
+  },
+
+  cleanContents: {
+    type: String,
+    trim: true,
+    required: true,
   },
 
   tags: [
@@ -100,7 +107,10 @@ postSchema.pre("deleteOne", { document: true }, function () {
   post
     .model("comments")
     .deleteMany({ _post: { $in: post._id } })
-    .then((res) => console.log(res))
+    .then((res) => {
+      console.log("연관된 댓글이 지워졌습니다.");
+      console.log(res);
+    })
     .catch((err) => console.log(err));
 });
 
