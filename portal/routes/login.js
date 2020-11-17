@@ -15,14 +15,19 @@ module.exports = (app) => {
     user.pw = req.body.pw;
     user.email = req.body.email;
     user.nickName = req.body.nickname;
+
+    // 유저마다 랜덤 salt를 생성한다.
     crypto.randomBytes(64, (err, buf) => {
       if (err) console.error;
       user.salt = buf.toString("base64");
       // save returns Promise object (resolve userinfo)
       user
         .save()
-        .then((_) => res.status(200).json({ success: true }))
-        .catch((err) => res.json({ success: false, err }));
+        .then(() => {
+          console.log("register done");
+          res.json({ success: true });
+        })
+        .catch((err) => res.json({ success: false, msg: err }));
     });
   });
 
