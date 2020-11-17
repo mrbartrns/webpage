@@ -89,9 +89,38 @@
       }
     }
 
+    function register() {
+        if (confirm('회원가입 하시겠습니까?')) {
+            fetch('/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: document.querySelector('#id').value,
+                    pw: document.querySelector('#pw').value,
+                    email: document.querySelector('#email').value,
+                    nickname: document.querySelector('#nickname').value
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow'
+            })
+            .then(blob => blob.json())
+            .then(res => {
+                if (res.success) {
+                    alert('가입되었습니다.');
+                    window.location.href = '/';
+                } else {
+                    alert('서버 오류:', res.msg);
+                }
+            })
+        }
+    }
+
     inputs.forEach(input => {
         input.addEventListener('input', validate);
     });
+
+    submitBtn.addEventListener('click', register);
 
     
 </script>
