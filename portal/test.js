@@ -7,13 +7,50 @@ const mongoose = require("mongoose");
 const app = express();
 require("dotenv").config();
 
+const { Test, Sample } = require("./models/test");
+
+mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
+mongoose.set("useUnifiedTopology", true);
+mongoose.connect(
+  process.env.MONGO_URL,
+  { dbName: process.env.MONGO_DB },
+  (err) => {
+    if (err) console.error;
+    console.log("mongodb server connected");
+  }
+);
+
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+// set the secret key variable for jwt
+
+app.use(logger("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "public")));
+
 app.get("/", (req, res) => {
-  console.log(req.query.name);
-  console.log(req.query.string);
-  res.json({ name: req.query.name, string: req.query.string });
+  res.json({ success: true });
 });
-// view engine setup
+
+app.post("/post", (req, res) => {
+  const test = new Test();
+  test.testString = req.body.string;
+
+  test
+    .save()
+    .then(() => {
+      res.json({ success: true });
+    })
+    .catch((err) => {
+      res.json({ success: false, err: err });
+    });
+});
 
 app.listen(3000, () => {
-  console.log("server listen on 3000");
+  console.log("server connected");
 });
