@@ -3,7 +3,7 @@ const createError = require("http-errors");
 const { auth } = require("../middleware/auth");
 const { view } = require("../middleware/viewCount");
 const { Board } = require("../models/boardname");
-const { Post } = require("../models/post");
+const { Post, Counter } = require("../models/post");
 const { User } = require("../models/user");
 const { Comment } = require("../models/comment");
 require("dotenv").config();
@@ -74,6 +74,7 @@ module.exports = (app) => {
         try {
           console.log(posts[0]._board.url);
         } catch (e) {
+          console.log("게시판에 게시글이 없습니다.");
           console.log(e);
         }
 
@@ -103,111 +104,135 @@ module.exports = (app) => {
   // 글쓴 후 post route
   app.post("/board/:boardurl/post", auth, async (req, res) => {
     // post 객체를 생성 > 제목, 본문, 글쓴이(req.user._id), 날짜, 수정 날짜를 저장(수정날짜는 자동으로 저장됨)
-    let orderNumber = await Post.countDocuments();
-
     console.log("post route입니다.");
 
-    const post = new Post();
-    post.title = req.body.title;
-    post.contents = req.body.contents;
-    post.cleanContents = req.body.cleanContents;
-    post._user = req.user._id;
-    post.regDate = Date.now();
-    post.orderNumber = orderNumber + 1;
-    console.log("post:", post);
-    // board 객체를 찾은 후, board._id를 post에 _board에 저장
-    Board.findOne({ url: req.params.boardurl })
-      .then((board) => {
-        if (!board) res.json({ success: false, err });
-        post._board = board._id;
-      })
-      .then(() => post.save())
-      .then((post) => {
-        if (!post) res.json({ success: false, msg: "error" });
-        // res.status(200).json({success: true});
-        res.redirect(`/board/${req.params.boardurl}`);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.json({ success: false, err });
-      });
+    try {
+      // ordernumber logic 수정 필요, 글 삭제 후에는 그 번호를 다시 쓰지 못하게 해야 함
 
-    orderNumber++;
+      const board = await Board.findOne({ url: req.params.boardurl });
+      if (!board) return res.json({ success: false, msg: err });
+
+      let orderDoc = await Counter.findOne({
+        _id: process.env.POST_MAX_ORDER_OBJECT_ID,
+      });
+      let orderNumber = await Post.countDocuments();
+      let order =
+        orderDoc.maxOrder > orderNumber ? orderDoc.maxOrder : orderNumber;
+
+      if (orderDoc.order < order) {
+        orderDoc.maxOrder = order + 1;
+      } else {
+        orderDoc.maxOrder = orderDoc.maxOrder + 1;
+      }
+      orderDoc.save();
+
+      const post = new Post();
+
+      post.title = req.body.title;
+      post.contents = req.body.contents;
+      post.cleanContents = req.body.cleanContents;
+      post._user = req.user._id;
+      post.regDate = Date.now();
+      post.order = orderDoc.maxOrder;
+      post._board = board;
+
+      // console.log("post:", post);
+
+      const result = await post.save();
+
+      if (!result) return res.json({ success: false, msg: "err" });
+
+      res.redirect(`/board/${req.params.boardurl}`);
+    } catch (err) {
+      console.error(err);
+      res.json({ success: false, msg: err });
+    }
   });
 
   // 게시글 본문 route
-  app.get("/board/:boardurl/:postid", view, async (req, res) => {
+  app.get("/board/:boardurl/:order", view, async (req, res) => {
     let likeFlag;
     let token = req.token;
     let login = req.isLogined;
+    let order = req.params.order;
 
     // x_auth is name of Cookie
-    const comments = await Comment.find({ _post: req.params.postid })
-      .populate({
-        path: "_user",
-        model: "users",
-      })
-      .sort({ order: 1 });
+    try {
+      const board = await Board.findOne({ url: req.params.boardurl });
 
-    Post.findOne({ _id: req.params.postid })
-      .populate({
-        path: "_board",
-        model: "boards",
-      })
-      .populate({
-        path: "_user",
-        model: "users",
-      })
-      .then((post) => {
-        likeFlag = post.likes.indexOf(req.user._id) !== -1 ? true : false;
-        // 본문이 본인이 쓴 글인지 확인한다.
-        post.authorizeUser(token).then((isAuthorized) => {
-          // isMe is used for verify post's writer
-          res.render("board_article", {
-            post: post,
-            comments: comments,
-            isMe: isAuthorized,
-            isLogined: login,
-            token: token,
-            title: `${post._board.boardName} - Portal`,
-            likeFlag: likeFlag,
-          });
+      const post = await Post.findOne({ order: order, _board: board._id })
+        .populate({
+          path: "_board",
+          model: "boards",
+        })
+        .populate({
+          path: "_user",
+          model: "users",
         });
-      })
-      .catch((err) => {
-        console.error(err);
-        res.json({ success: false, err });
+
+      likeFlag = post.likes.indexOf(req.user._id) !== -1 ? true : false;
+
+      // 본인이 쓴 글인지 확인
+      let isAuthorized = await post.authorizeUser(token);
+
+      const comments = await Comment.find({ _post: post._id })
+        .populate({
+          path: "_user",
+          model: "users",
+        })
+        .sort({ order: 1 });
+
+      res.render("board_article", {
+        post: post,
+        comments: comments,
+        isMe: isAuthorized,
+        isLogined: login,
+        token: token,
+        title: `${post._board.boardName} - Portal`,
+        likeFlag,
+        likeFlag,
       });
+    } catch (err) {
+      console.error(err);
+      res.json({ success: false, msg: err });
+    }
   });
 
   // 게시글 수정 route
-  // 수정 필요
-  app.get("/board/:boardurl/:postid/edit", auth, (req, res) => {
-    const postId = req.params.postid;
-    Post.findOne({ _id: postId })
-      .populate({
-        path: "_board",
-        model: "boards",
-      })
-      .populate({
-        path: "_user",
-        model: "users",
-      })
-      .then((post) => {
-        if (!post)
-          res.json({ success: false, msg: "올바르지 않은 게시판 또는 postId" });
+  app.get("/board/:boardurl/:order/edit", auth, async (req, res) => {
+    try {
+      const board = await Board.findOne({ url: req.params.boardurl });
+      const order = req.params.order;
 
-        // auth에서 로그인 여부를 확인하므로 token을 이용해도 괜찮다.
-        post.authorizeUser(req.token).then((isAuthorized) => {
-          if (!isAuthorized)
-            res.json({ success: false, msg: "올바르지 않은 유저" });
-          res.render("board_post_edit", {
-            board: post._board,
-            title: "글 수정하기",
-            post: post,
-          });
+      const post = await Post.findOne({ order: order, _board: board._id })
+        .populate({
+          path: "_board",
+          model: "boards",
+        })
+        .populate({
+          path: "_user",
+          model: "users",
         });
+
+      if (!post)
+        return res.json({
+          success: false,
+          msg: "올바르지 않은 게시판 또는 postid",
+        });
+
+      const isAuthorized = await post.authorizeUser(req.token);
+      if (!isAuthorized)
+        return res.json({ success: false, msg: "올바르지 않은 유저" });
+
+      res.render("board_post_edit", {
+        board: board,
+        title: "글 수정하기",
+        post: post,
       });
+    } catch (err) {
+      console.error(err);
+      res.json({ success: false, msg: err });
+    }
   });
 
   // 게시글 수정 post

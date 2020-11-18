@@ -39,15 +39,7 @@ const postSchema = new Schema({
       type: String,
     },
   ],
-  /*
-  comments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "comments",
-      index: true,
-    },
-  ],
- */
+
   views: {
     type: Number,
     required: true,
@@ -56,13 +48,10 @@ const postSchema = new Schema({
 
   order: {
     type: Number,
+    required: true,
+    unique: 1,
   },
 
-  // likes: {
-  //   type: Number,
-  //   required: true,
-  //   default: 0,
-  // },
   likes: [
     {
       type: Schema.Types.ObjectId,
@@ -76,17 +65,19 @@ const postSchema = new Schema({
     default: Date.now(),
   },
 
-  regDateMongo: {
-    type: Date,
-    default: Date.now(),
-  },
-
   modDate: {
-    type: Number,
+    type: Date,
   },
 
   img: {
     type: String,
+  },
+});
+
+const maxOrderSchema = new Schema({
+  maxOrder: {
+    type: Number,
+    default: 0,
   },
 });
 
@@ -106,7 +97,7 @@ postSchema.pre("deleteOne", { document: true }, function () {
   let post = this; // post: Document
   post
     .model("comments")
-    .deleteMany({ _post: { $in: post._id } })
+    .deleteMany({ _post: { $in: [post._id] } })
     .then((res) => {
       console.log("연관된 댓글이 지워졌습니다.");
       console.log(res);
@@ -143,5 +134,6 @@ postSchema.methods.updateView = function () {
 };
 
 const Post = mongoose.model("posts", postSchema);
+const Counter = mongoose.model("counter", maxOrderSchema);
 
-module.exports = { Post };
+module.exports = { Post, Counter };
