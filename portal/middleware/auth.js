@@ -70,6 +70,10 @@ let auth = (req, res, next) => {
     console.log("권한이 없습니다.");
     return res.json({ isAuth: false, msg: "권한이 없습니다." });
   }
+  if (req.user.banned) {
+    console.log("정지된 회원");
+    return res.json({ isAuth: false, msg: "정지된 회원입니다." });
+  }
   next();
 };
 

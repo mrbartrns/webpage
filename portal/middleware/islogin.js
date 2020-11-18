@@ -26,6 +26,7 @@ let login = (req, res, next) => {
           id: user.id,
           nickName: user.nickName,
           role: user.role,
+          banned: user.banned,
         };
       }
       // next가 then 안에 있어야 req가 저장된 후 next 함수가 호출됨!
