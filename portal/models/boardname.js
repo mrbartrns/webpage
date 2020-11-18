@@ -29,6 +29,11 @@ const boardSchema = new Schema({
   description: {
     type: String,
   },
+
+  auth: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Board = mongoose.model("boards", boardSchema);

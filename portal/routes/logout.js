@@ -1,9 +1,10 @@
 const { auth } = require("../middleware/auth");
+const { login } = require("../middleware/islogin");
 const { User } = require("../models/user");
 const { TokenBlackList } = require("../models/token");
 
 module.exports = (app) => {
-  app.get("/logout", auth, (req, res) => {
+  app.get("/logout", login, (req, res) => {
     const token = req.token;
     const tokenBlackList = new TokenBlackList();
     tokenBlackList.token = token;

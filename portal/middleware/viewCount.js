@@ -17,7 +17,7 @@ let view = (req, res, next) => {
         ip.expiresIn = date + delta;
 
         ip.save().then((_) => {
-          Post.findOne({ _id: req.params.postid })
+          Post.findOne({ order: req.params.order })
             .then((post) => post.updateView())
             .then((post) => console.log("new post view:", post.views))
             .catch((err) => console.error(err));
@@ -25,7 +25,7 @@ let view = (req, res, next) => {
         });
       } else {
         if (ip.expiresIn < date) {
-          Post.findOne({ _id: req.params.postid })
+          Post.findOne({ order: req.params.order })
             .then((post) => post.updateView())
             .then((_) =>
               Ip.findOneAndUpdate(

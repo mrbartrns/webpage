@@ -60,6 +60,7 @@
         }
 
     </style>
+    <input type="hidden" value="<%= post._id %>">
     <div class="container">
         <form>
             <input type="text" name="title" id="title" placeholder="제목">
@@ -118,7 +119,7 @@
             .then(blob => blob.json())
             .then(res => {
                 if(res.success) {
-                    window.location.href = '/board/<%= post._board.url %>/<%= post._id %>';
+                    window.location.href = '/board/<%= post._board.url %>/<%= post.order %>';
                 }
             })
         }

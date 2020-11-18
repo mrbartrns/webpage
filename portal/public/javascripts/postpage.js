@@ -9,7 +9,11 @@ window.onload = () => {
     BOARD_URL = document.querySelector("#boardurl").value,
     POST_ID = document.querySelector("#postid").value;
 
+  console.log(BOARD_URL);
+  console.log(POST_ID);
+
   function deletePost() {
+    console.log(BOARD_URL);
     if (confirm("정말 삭제하시겠습니까?")) {
       fetch(`/board/${BOARD_URL}/${POST_ID}/delete`, {
         method: "POST",

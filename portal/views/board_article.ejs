@@ -91,13 +91,16 @@
       }
     })
     .then(json => {
-      console.log(json);
+      if (!json.isAuth) {
+        alert('이용이 제한된 회원입니다.');
+      }
       if(json.success) {
         window.location.reload();
       }
+
     })
     .catch(err => {
-      alert('에러:', err);
+      alert('에러:', 'err');
     });
 
   }
@@ -106,7 +109,7 @@
 <script src="/javascripts/postpage.js"></script>
 <!--post id and board url-->
 <input type="hidden" id="postid" value="<%= post._id%>">
-<input type="hidden" id="boardurl" vlaue="<%= post._board.url%>">
+<input type="hidden" id="boardurl" value="<%= post._board.url%>">
 
 <!--conatiner-->
 <div class="container">
@@ -126,7 +129,7 @@
         </button>
     </div>
     <% if (isMe) { %>
-      <span><a href="/board/<%= post._board.url %>/<%= post._id %>/edit">수정</a></span>
+      <span><a href="/board/<%= post._board.url %>/<%= post.order %>/edit">수정</a></span>
       <span><a class="delete">삭제</a></span>
     <% } %>
   </div>

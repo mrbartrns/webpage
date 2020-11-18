@@ -12,17 +12,18 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   id: {
     type: String,
-    required: true,
+
     trim: true,
     unique: 1,
     minlength: 6,
     maxlength: 20,
+    required: true,
   },
 
   pw: {
     type: String,
-    required: true,
     trim: true,
+    required: true,
   },
 
   salt: {
@@ -33,9 +34,9 @@ const userSchema = new Schema({
   email: {
     type: String,
     trim: true,
-    required: true,
     match: /\w+@\w+.\w+/,
     unique: 1,
+    required: true,
   },
 
   nickName: {
@@ -47,8 +48,8 @@ const userSchema = new Schema({
 
   role: {
     type: Number,
-    required: true,
     default: 0,
+    required: true,
   },
 
   // user image
@@ -111,8 +112,8 @@ userSchema.pre("save", function (next) {
 
 userSchema.pre("deleteOne", { document: true }, function () {
   let user = this;
-  user.model("posts").deleteMany({ _user: { $in: user._id } });
-  user.modle("comments").deleteMany({ _user: { $in: user._id } });
+  user.model("posts").deleteMany({ _user: { $in: [user._id] } });
+  user.modle("comments").deleteMany({ _user: { $in: [user._id] } });
 });
 
 userSchema.methods.comparePassword = function (plainPassword) {

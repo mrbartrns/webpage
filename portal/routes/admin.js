@@ -1,8 +1,9 @@
 const { auth } = require("../middleware/auth");
 const { admin } = require("../middleware/admin");
 const { Board } = require("../models/boardname");
+const { User } = require("../models/user");
 
-module.exports = (app, User) => {
+module.exports = (app) => {
   // admin임을 확인하기 위하여 token의 서명, token의 role, token의 id와 로그인된 id을 확인한다.
   app.get("/admin", auth, admin, (req, res) => {
     res.render("admin_main", { title: "관리자 페이지" });
