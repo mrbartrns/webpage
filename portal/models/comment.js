@@ -43,7 +43,7 @@ const commentSchema = new Schema({
   },
 
   modDate: {
-    type: Number,
+    type: Date,
   },
 
   parentComment: {
