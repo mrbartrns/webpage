@@ -67,8 +67,8 @@ app.get("/", (req, res) => {
 require("./routes/login")(app);
 require("./routes/modify")(app);
 require("./routes/logout")(app);
-require("./routes/admin")(app, User);
-require("./routes/board")(app, User);
+require("./routes/admin")(app);
+require("./routes/board")(app);
 require("./routes/token")(app);
 require("./routes/comment")(app);
 
