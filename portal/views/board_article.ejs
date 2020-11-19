@@ -91,7 +91,7 @@
       }
     })
     .then(json => {
-      if (!json.isAuth) {
+      if (json.isAuth === false) {
         alert('이용이 제한된 회원입니다.');
       }
       if(json.success) {
